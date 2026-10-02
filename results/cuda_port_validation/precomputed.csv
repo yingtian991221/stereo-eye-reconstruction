@@ -1,0 +1,16 @@
+frame,mode,iteration,wall_ms,gpu_timeline_ms,legacy_right_psnr_db,roi_width,roi_height,timing,downsample_included
+driving_15_300_0039.pir,full,0,0.7625,0.7321599722,29.50920474,160,90,gpu_resident,0
+driving_15_300_0039.pir,full,1,0.7675,0.7393280268,29.50920474,160,90,gpu_resident,0
+driving_15_300_0039.pir,full,2,0.7463,0.73318398,29.50920474,160,90,gpu_resident,0
+driving_15_300_0039.pir,full,3,0.7403,0.7249919772,29.50920474,160,90,gpu_resident,0
+driving_15_300_0039.pir,full,4,0.8064,0.778496027,29.50920474,160,90,gpu_resident,0
+driving_15_300_0039.pir,half_base,0,0.5732,0.5600640178,29.39586642,160,90,gpu_resident,0
+driving_15_300_0039.pir,half_base,1,0.9229,0.9091519713,29.39586642,160,90,gpu_resident,0
+driving_15_300_0039.pir,half_base,2,0.5714,0.556032002,29.39586642,160,90,gpu_resident,0
+driving_15_300_0039.pir,half_base,3,0.569,0.5550079942,29.39586642,160,90,gpu_resident,0
+driving_15_300_0039.pir,half_base,4,0.589,0.5611519814,29.39586642,160,90,gpu_resident,0
+driving_15_300_0039.pir,fov,0,1.0232,1.008640051,29.40200152,160,90,gpu_resident,0
+driving_15_300_0039.pir,fov,1,2.0305,1.01888001,29.40200152,160,90,gpu_resident,0
+driving_15_300_0039.pir,fov,2,0.6536,0.6379520297,29.40200152,160,90,gpu_resident,0
+driving_15_300_0039.pir,fov,3,0.656,0.6410239935,29.40200152,160,90,gpu_resident,0
+driving_15_300_0039.pir,fov,4,0.7194,0.6796799898,29.40200152,160,90,gpu_resident,0

@@ -1,0 +1,19 @@
+[
+  {
+    "workload": "driving_15_300",
+    "requested_frames": 147,
+    "measured_frames": 147,
+    "missing": [],
+    "source": "\\\\YZ\\2023fall1\\driving__frames_cleanpass\\frames_cleanpass\\15mm_focallength\\scene_forwards\\aaa\\generate_left_and_right.py",
+    "source_sha256": "bb8daa9ae302f286e3226bea7389717c7e776aaa97c7cf107f07856d7ffd1364",
+    "directory": "\\\\YZ\\2023fall1\\driving__frames_cleanpass\\frames_cleanpass\\15mm_focallength\\scene_forwards\\aaa",
+    "pirate_right_dir": "cuda_right",
+    "hevc_left": 31.713274118759752,
+    "hevc_right": 31.70483686012095,
+    "pirate_left": 32.11333969223535,
+    "pirate_right": 31.359956490652536,
+    "hevc_mean": 31.70905548944035,
+    "pirate_mean": 31.736648091443936,
+    "pirate_minus_hevc_db": 0.02759260200358682
+  }
+]

@@ -1,0 +1,188 @@
+[
+  {
+    "workload": "driving_15_300",
+    "requested_frames": 147,
+    "measured_frames": 147,
+    "missing": [],
+    "source": "\\\\YZ\\2023fall1\\driving__frames_cleanpass\\frames_cleanpass\\15mm_focallength\\scene_forwards\\aaa\\generate_left_and_right.py",
+    "source_sha256": "bb8daa9ae302f286e3226bea7389717c7e776aaa97c7cf107f07856d7ffd1364",
+    "directory": "\\\\YZ\\2023fall1\\driving__frames_cleanpass\\frames_cleanpass\\15mm_focallength\\scene_forwards\\aaa",
+    "hevc_left": 31.713274118759752,
+    "hevc_right": 31.70483686012095,
+    "pirate_left": 32.11333969223535,
+    "pirate_right": 31.195309247982642,
+    "hevc_mean": 31.70905548944035,
+    "pirate_mean": 31.654324470109007,
+    "pirate_minus_hevc_db": -0.05473101933134217
+  },
+  {
+    "workload": "driving_15_800",
+    "requested_frames": 397,
+    "measured_frames": 387,
+    "missing": [
+      {
+        "frame": 781,
+        "files": [
+          "pirate_right"
+        ]
+      },
+      {
+        "frame": 783,
+        "files": [
+          "pirate_right"
+        ]
+      },
+      {
+        "frame": 785,
+        "files": [
+          "pirate_right"
+        ]
+      },
+      {
+        "frame": 787,
+        "files": [
+          "pirate_right"
+        ]
+      },
+      {
+        "frame": 789,
+        "files": [
+          "pirate_right"
+        ]
+      },
+      {
+        "frame": 791,
+        "files": [
+          "pirate_right"
+        ]
+      },
+      {
+        "frame": 793,
+        "files": [
+          "pirate_right"
+        ]
+      },
+      {
+        "frame": 795,
+        "files": [
+          "pirate_right"
+        ]
+      },
+      {
+        "frame": 797,
+        "files": [
+          "pirate_right"
+        ]
+      },
+      {
+        "frame": 799,
+        "files": [
+          "pirate_right"
+        ]
+      }
+    ],
+    "source": "\\\\YZ\\2023fall1\\driving__frames_cleanpass\\frames_cleanpass\\15mm_focallength\\scene_forwards\\bbb\\test_numba.py",
+    "source_sha256": "2bca2b6962bf2126b02bd061d8666c445aa791b5f0b71a6636adea59e2b3a374",
+    "directory": "\\\\YZ\\2023fall1\\driving__frames_cleanpass\\frames_cleanpass\\15mm_focallength\\scene_forwards\\bbb",
+    "hevc_left": 31.932644221362235,
+    "hevc_right": 31.92076957968782,
+    "pirate_left": 32.36752917737986,
+    "pirate_right": 31.472376101672793,
+    "hevc_mean": 31.926706900525026,
+    "pirate_mean": 31.919952639526326,
+    "pirate_minus_hevc_db": -0.006754260998700801
+  },
+  {
+    "workload": "driving_35_300",
+    "requested_frames": 147,
+    "measured_frames": 147,
+    "missing": [],
+    "source": "\\\\YZ\\2023fall1\\driving__frames_cleanpass\\frames_cleanpass\\35mm_focallength\\scene_forwards\\aaa\\test_numba.py",
+    "source_sha256": "7def1dadd18dbb2e309e1c8a2a73ff52039a8404f0b9d63c0ff86e4bbb2c7b71",
+    "directory": "\\\\YZ\\2023fall1\\driving__frames_cleanpass\\frames_cleanpass\\35mm_focallength\\scene_forwards\\aaa",
+    "hevc_left": 31.595280385932977,
+    "hevc_right": 31.56811249113456,
+    "pirate_left": 31.988517101131748,
+    "pirate_right": 31.09038868328737,
+    "hevc_mean": 31.581696438533772,
+    "pirate_mean": 31.539452892209564,
+    "pirate_minus_hevc_db": -0.042243546324208125
+  },
+  {
+    "workload": "driving_35_800",
+    "requested_frames": 397,
+    "measured_frames": 387,
+    "missing": [
+      {
+        "frame": 781,
+        "files": [
+          "pirate_right"
+        ]
+      },
+      {
+        "frame": 783,
+        "files": [
+          "pirate_right"
+        ]
+      },
+      {
+        "frame": 785,
+        "files": [
+          "pirate_right"
+        ]
+      },
+      {
+        "frame": 787,
+        "files": [
+          "pirate_right"
+        ]
+      },
+      {
+        "frame": 789,
+        "files": [
+          "pirate_right"
+        ]
+      },
+      {
+        "frame": 791,
+        "files": [
+          "pirate_right"
+        ]
+      },
+      {
+        "frame": 793,
+        "files": [
+          "pirate_right"
+        ]
+      },
+      {
+        "frame": 795,
+        "files": [
+          "pirate_right"
+        ]
+      },
+      {
+        "frame": 797,
+        "files": [
+          "pirate_right"
+        ]
+      },
+      {
+        "frame": 799,
+        "files": [
+          "pirate_right"
+        ]
+      }
+    ],
+    "source": "\\\\YZ\\2023fall1\\driving__frames_cleanpass\\frames_cleanpass\\35mm_focallength\\scene_forwards\\bbb\\test_numba.py",
+    "source_sha256": "b5c9f7ddc841e52a862a263c54cc71e9971085f95d6f25b8bfe7bec9ec8a4025",
+    "directory": "\\\\YZ\\2023fall1\\driving__frames_cleanpass\\frames_cleanpass\\35mm_focallength\\scene_forwards\\bbb",
+    "hevc_left": 31.920227756568824,
+    "hevc_right": 31.88286502046627,
+    "pirate_left": 32.37432863383864,
+    "pirate_right": 31.452709120575122,
+    "hevc_mean": 31.901546388517545,
+    "pirate_mean": 31.91351887720688,
+    "pirate_minus_hevc_db": 0.011972488689334426
+  }
+]

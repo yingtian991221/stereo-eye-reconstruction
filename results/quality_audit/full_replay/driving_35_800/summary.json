@@ -1,0 +1,12 @@
+{
+  "workload": "driving_35_800",
+  "frames": 387,
+  "source_sha256": "b5c9f7ddc841e52a862a263c54cc71e9971085f95d6f25b8bfe7bec9ec8a4025",
+  "hevc_left": 31.920227756568824,
+  "hevc_right": 31.88286502046627,
+  "pirate_left": 32.37432863383864,
+  "pirate_right": 31.451091639681994,
+  "hevc_mean": 31.901546388517545,
+  "pirate_mean": 31.912710136760317,
+  "pirate_minus_hevc_db": 0.011163748242772442
+}

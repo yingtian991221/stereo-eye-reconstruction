@@ -1,0 +1,120 @@
+[
+  {
+    "workload": "driving_15_300",
+    "baseline_log_count": 146,
+    "pirate_log_count": 146,
+    "matched_frames": 146,
+    "psnr_probe_max_abs_error": {
+      "hevc_left": 0.22679123879019158,
+      "hevc_right": 0.0,
+      "pirate_right": 0.0
+    },
+    "baseline_log_eye": "right",
+    "same_eye_comparison": true,
+    "hevc_right": {
+      "psnr": 31.70343942176804,
+      "ms_ssim": 0.8762863013698631,
+      "clip": 0.9489182719629105,
+      "lpips": 0.2719643743683214
+    },
+    "pirate_right": {
+      "psnr": 31.201839934863692,
+      "ms_ssim": 0.7743958904109589,
+      "clip": 0.9536276018782838,
+      "lpips": 0.257882805923893
+    },
+    "pirate_minus_hevc": {
+      "psnr": -0.5015994869043467,
+      "ms_ssim": -0.10189041095890417,
+      "clip": 0.004709329915373317,
+      "lpips": -0.014081568444428372
+    }
+  },
+  {
+    "workload": "driving_15_800",
+    "baseline_log_count": 186,
+    "pirate_log_count": 186,
+    "matched_frames": 186,
+    "psnr_probe_max_abs_error": {
+      "hevc_left": 0.19147267352695962,
+      "hevc_right": 0.0,
+      "pirate_right": 0.0
+    },
+    "baseline_log_eye": "right",
+    "same_eye_comparison": true,
+    "hevc_right": {
+      "psnr": 31.662254086912334,
+      "ms_ssim": 0.8684268817204301,
+      "clip": 0.9469365179538727,
+      "lpips": 0.25940657326931593
+    },
+    "pirate_right": {
+      "psnr": 31.390171649564216,
+      "ms_ssim": 0.795962365591398,
+      "clip": 0.9569603385784293,
+      "lpips": 0.2440719201519925
+    },
+    "pirate_minus_hevc": {
+      "psnr": -0.2720824373481179,
+      "ms_ssim": -0.07246451612903215,
+      "clip": 0.010023820624556645,
+      "lpips": -0.015334653117323432
+    }
+  },
+  {
+    "workload": "driving_35_300",
+    "baseline_log_count": 146,
+    "pirate_log_count": 146,
+    "matched_frames": 146,
+    "psnr_probe_max_abs_error": {
+      "hevc_left": 0.0,
+      "hevc_right": 0.20273821427773697,
+      "pirate_right": 0.0
+    },
+    "baseline_log_eye": "left",
+    "same_eye_comparison": false,
+    "hevc_left": {
+      "psnr": 31.595054030480316,
+      "ms_ssim": 0.8735445205479452,
+      "clip": 0.9500836293174796,
+      "lpips": 0.26346793117588513
+    },
+    "pirate_right": {
+      "psnr": 31.096222028621998,
+      "ms_ssim": 0.768791095890411,
+      "clip": 0.9548212469440617,
+      "lpips": 0.2538495600631792
+    }
+  },
+  {
+    "workload": "driving_35_800",
+    "baseline_log_count": 186,
+    "pirate_log_count": 186,
+    "matched_frames": 186,
+    "psnr_probe_max_abs_error": {
+      "hevc_left": 0.13971071666217227,
+      "hevc_right": 0.0,
+      "pirate_right": 0.0
+    },
+    "baseline_log_eye": "right",
+    "same_eye_comparison": true,
+    "hevc_right": {
+      "psnr": 31.679209356023275,
+      "ms_ssim": 0.8835682795698926,
+      "clip": 0.9531873326788667,
+      "lpips": 0.22544612543236825
+    },
+    "pirate_right": {
+      "psnr": 31.411385954520416,
+      "ms_ssim": 0.8059510752688173,
+      "clip": 0.96064519305383,
+      "lpips": 0.2267382340405577
+    },
+    "pirate_minus_hevc": {
+      "psnr": -0.2678234015028593,
+      "ms_ssim": -0.07761720430107533,
+      "clip": 0.007457860374963321,
+      "lpips": 0.0012921086081894573
+    }
+  }
+]
