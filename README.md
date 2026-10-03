@@ -6,11 +6,11 @@
 
 ## Xavier 已有数据：从 GitHub 开始
 
-仓库只提供代码、文档和小型实验记录，不包含 Driving 数据集或二进制帧包。这是私有仓库，clone 前需在 Xavier 配置有仓库访问权限的 GitHub 身份（SSH 或 HTTPS 凭据）；不要把 token 写进命令或 README。
+仓库公开提供代码、文档和小型实验记录，不包含 Driving 数据集或二进制帧包。使用下面的 HTTPS 地址 clone 无需登录 GitHub。
 
 ```bash
-git clone https://github.com/yingtian991221/Stereo-eye-reconstruction-pirate.git
-cd Stereo-eye-reconstruction-pirate
+git clone https://github.com/yingtian991221/stereo-eye-reconstruction.git
+cd stereo-eye-reconstruction
 
 # 一次性导出工具需要这些包；测速程序本身不使用 Python。
 sudo apt-get update
@@ -39,7 +39,7 @@ PIRATE_BIN=./build/pirate_bench bash jetson_cuda/run_matrix.sh \
 
 `data/`、`build/` 和 `results/xavier/` 都被 Git 忽略。导出读取原数据，输出写在 `data/xavier_sample/`，不会修改已有 PNG/NPY。若四组不全，可给导出命令加 `--workload driving_15_300` 先运行一组。
 
-后续更新代码：在仓库里执行 `git pull --ff-only`，然后重新运行 `nvcc` 编译命令。数据格式和输入不变时无需重新导出。若设备使用 SSH，可将 clone URL 替换为 `git@github.com:yingtian991221/Stereo-eye-reconstruction-pirate.git`。
+后续更新代码：在仓库里执行 `git pull --ff-only`，然后重新运行 `nvcc` 编译命令。数据格式和输入不变时无需重新导出。若设备已配置 GitHub SSH 身份，可将 clone URL 替换为 `git@github.com:yingtian991221/stereo-eye-reconstruction.git`。
 
 ## 1. 先看这几个文件
 
