@@ -75,7 +75,7 @@ def main():
             ax.set_xlabel('Full-resolution ROI (pixels)')
             ax.grid(alpha=0.2)
             ax.legend(fontsize=8)
-        fig.suptitle('FOV sweep: %s (right eye; sampled frames)' % a.run.name)
+        fig.suptitle('FOV sweep: %d frames (right eye)' % len({t['frame'] for t in times}))
         fig.savefig(a.run / 'quality_speed.png', dpi=180)
         fig.savefig(a.run / 'quality_speed.svg')
         svg = a.run / 'quality_speed.svg'

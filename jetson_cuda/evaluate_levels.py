@@ -8,6 +8,7 @@ import argparse
 import csv
 import hashlib
 import json
+import os
 import platform
 import shutil
 import struct
@@ -24,6 +25,17 @@ def write_csv(path, rows):
     with path.open('w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=list(rows[0]))
         writer.writeheader()
+        writer.writerows(rows)
+
+
+def append_csv(path, rows):
+    if not rows:
+        return
+    exists = path.exists()
+    with path.open('a', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=list(rows[0]))
+        if not exists:
+            writer.writeheader()
         writer.writerows(rows)
 
 
@@ -71,8 +83,11 @@ def main():
     parser.add_argument('--fixed-region', default='160x90')
     parser.add_argument('--keep-images', action='store_true')
     parser.add_argument('--batch-frames', action='store_true', help='One CUDA process per level/run; retain per-frame warmups and timing')
+    parser.add_argument('--batch-size', type=int, help='Bound frames per CUDA process and temporary image disk usage')
     parser.add_argument('--fast-resample', action='store_true', help='Use byte-exact FP32 2x resampling')
     args = parser.parse_args()
+    if args.batch_size is not None and args.batch_size < 1:
+        parser.error('--batch-size must be positive')
     levels = [tuple(map(int, s.split('x'))) for s in args.levels.split(',')]
     fixed = tuple(map(int, args.fixed_region.split('x')))
     if any(len(v) != 2 or min(v) < 1 for v in levels + [fixed]):
@@ -137,13 +152,22 @@ def main():
             subprocess.run([str(binary), '--self-test'], stdout=log, stderr=subprocess.STDOUT, check=True)
         timings = ['resident', 'stream'] if args.timing == 'both' else [args.timing]
         jobs = [list(zip(packets, packet_info))] if args.batch_frames else [[v] for v in zip(packets, packet_info)]
+        if args.batch_size is not None:
+            pairs = list(zip(packets, packet_info))
+            jobs = [pairs[i:i + args.batch_size] for i in range(0, len(pairs), args.batch_size)]
         for ji, job in enumerate(jobs):
             input_args = ['--manifest', str(manifest)] if args.batch_frames else ['--input', str(job[0][0])]
+            if args.batch_size is not None:
+                batch_manifest = args.out / 'raw' / ('input_%04d.txt' % ji)
+                batch_manifest.write_text(''.join(os.path.relpath(str(packet), str(batch_manifest.parent.resolve())) + '\n'
+                                                  for packet, _ in job), encoding='utf-8')
+                input_args = ['--manifest', str(batch_manifest.resolve())]
             for run in range(args.quality_runs):
                 order = (ji + run) % len(levels)
                 for rw, rh in levels[order:] + levels[:order]:
                     level = '%dx%d' % (rw, rh)
                     for timing in timings:
+                        quality_start, times_start = len(quality), len(times)
                         tag = '%04d_%s_%s_r%d' % (ji, level, timing, run)
                         prefix = args.out / 'raw' / tag
                         timing_csv = Path(str(prefix) + '.csv')
@@ -195,15 +219,18 @@ def main():
                                 for mode in images:
                                     Path(str(prefix) + '_%d_%s.ppm' % (fi, mode)).unlink()
                         print(tag, 'OK (%d frames)' % len(job), flush=True)
-                        write_csv(args.out / 'quality.csv', quality)
-        write_csv(args.out / 'timings.csv', times)
+                        append_csv(args.out / 'quality.csv', quality[quality_start:])
+                        append_csv(args.out / 'timings.csv', times[times_start:])
         groups = defaultdict(list)
+        time_groups = defaultdict(list)
+        for t in times:
+            time_groups[(t['workload'], t['level'], t['timing'], t['mode'])].append(t)
         for q in quality:
             groups[(q['workload'], q['level'], q['timing'], q['mode'], q['region'])].append(q)
         summary = []
         for (workload, level, timing, mode, region), qs in sorted(groups.items()):
-            ts = [t for t in times if (t['workload'], t['level'], t['timing'], t['mode']) == (workload, level, timing, mode)]
-            bs = [t for t in times if (t['workload'], t['level'], t['timing'], t['mode']) == (workload, level, timing, 'full')]
+            ts = time_groups[workload, level, timing, mode]
+            bs = time_groups[workload, level, timing, 'full']
             wall = [t['wall_ms'] for t in ts]
             summary.append(dict(workload=workload, level=level, timing=timing, mode=mode, region=region,
                                 frames=len(set(q['frame'] for q in qs)), quality_samples=len(qs),

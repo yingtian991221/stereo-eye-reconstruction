@@ -43,7 +43,7 @@ PIRATE_BIN=./build/pirate_bench bash jetson_cuda/run_matrix.sh \
 
 ## FOV level 的质量与时间联合测试
 
-[2026-10-27 Xavier 实测报告与原始证据](results/fov_levels_xavier_20261027/README.md)。
+[2026-10-27 Xavier 完整有效 Driving 1068 帧报告与原始证据](results/fov_levels_xavier_full_20261027/README.md)。此前的 [64 帧抽样报告](results/fov_levels_xavier_20261027/README.md) 保留供对照。
 
 第一轮 level 定义为中心全分辨率矩形大小：`80x46 / 160x90 / 320x180 / 480x270 / 640x360`。
 外围固定为半分辨率重建再上采样；这不是视角度数，也不是不同外围分辨率。
@@ -85,6 +85,22 @@ python3 jetson_cuda/evaluate_levels.py --binary ./build/pirate_bench \
 GPU resident 包含降采样、重建、上采样和 ROI 合成；stream 的 wall time 另含输入上传和输出回传。
 两者都排除文件读取、分配、质量计算和图像保存；`gpu_timeline_ms` 不含传输。
 记录原功耗/时钟配置，不自动更改功耗模式；正式比较应保持相同配置并检查温度/频率记录。
+
+### 完整有效 Driving 帧范围
+
+`--frames all` 导出四组 forward 序列的所有有效奇数帧，共 1068 帧（147/387/147/387）；
+300 帧组为 7–299，800 帧组为 7–779。这不包含偶数帧交替重建或 backward 场景。
+帧包约 7.73 GiB，完整运行使用 `--batch-size 32`，将临时 PPM 限制在约 150 MiB，评估后清理临时图像。
+
+```bash
+python3 jetson_cuda/export_frames.py --data-root "$DRIVING_ROOT" --out data/full1068 --frames all
+python3 jetson_cuda/evaluate_levels.py --binary ./build/pirate_bench \
+  --manifest data/full1068/manifest.txt --out results/xavier/full1068_01 \
+  --batch-size 32 --warmup 3 --repeats 5 --quality-runs 1 --timing both --fast-resample
+```
+
+这组参数每档每种模式产生 5340 个计时样本，质量逐帧计算一次。它与 64 帧实验的预热/重复次数不同；
+比较时应保留参数记录。`quality.csv`、`timings.csv` 逐批追加保存，只有 `COMPLETE` 表示全部完成。
 
 ### 可选的上采样加速
 
@@ -347,4 +363,4 @@ Xavier 复现实验前记录 `nvpmodel -q`、`jetson_clocks --show` 和散热/�
 
 已在本机 RTX 3080 Laptop、Windows、CUDA 12.8 编译执行；通过合成图像的 full/base/FOV、自检中的恒等/平移重建与填洞、原 PSNR 溢出规则检查。已读取四组 Driving 的第 7、39 帧并执行三种模式；Xavier `sm_72` kernel 编译检查与 CMake 构建检查记录见 `jetson_cuda/VALIDATION.md`。
 
-**2026-10-27 已完成实际 Xavier 编译、自检和五档 FOV 的 resident/stream 测试。** 设备为 Jetson AGX Xavier，L4T R35.6.4，CUDA 11.4，15W。请使用 [Xavier 实测报告](results/fov_levels_xavier_20261027/README.md) 的板上数据；前面的 RTX 记录仍只是本机验证。
+**2026-10-27 已完成实际 Xavier 编译、自检和四组 forward 全部有效 1068 奇数帧的五档 FOV resident/stream 测试。** 设备为 Jetson AGX Xavier，L4T R35.6.4，CUDA 11.4，15W。请使用 [Xavier 完整有效范围实测报告](results/fov_levels_xavier_full_20261027/README.md) 的板上数据；前面的 RTX 记录仍只是本机验证。
