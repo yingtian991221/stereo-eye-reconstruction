@@ -2,7 +2,7 @@
 
 本项目将目前的 Numba 重建/FOV 速度原型移植为 **CUDA C++ `.cu` 程序**，用于在 Jetson AGX Xavier / Xavier NX 上比较全尺寸重建、半分辨率底图和底图加全分辨率注视区的速度。**编译后的测速程序不需要 Python、Numba、PyTorch 或 OpenCV。** Xavier 已有数据集时，在设备上用 NumPy/Pillow 做一次数据导出即可，不需要重新传数据集。
 
-目前已观察到小注视区在 RTX 上有中位耗时收益。移植工作的目标是让同一比较在 Xavier 上运行，测清楚收益大小和尾延迟。当前程序使用固定 ROI；动态眼动、网络到达和 deadline 调度尚未接入。
+已在 RTX 和 Jetson AGX Xavier 15W 上执行多档 FOV 对照，并增加可选的上采样加速路径。质量与时间、原始记录和限制见下方实测报告。当前程序使用固定 ROI；动态眼动、网络到达和 deadline 调度尚未接入。
 
 ## Xavier 已有数据：从 GitHub 开始
 
@@ -41,6 +41,63 @@ PIRATE_BIN=./build/pirate_bench bash jetson_cuda/run_matrix.sh \
 
 后续更新代码：在仓库里执行 `git pull --ff-only`，然后重新运行 `nvcc` 编译命令。数据格式和输入不变时无需重新导出。若设备已配置 GitHub SSH 身份，可将 clone URL 替换为 `git@github.com:yingtian991221/stereo-eye-reconstruction.git`。
 
+## FOV level 的质量与时间联合测试
+
+[2026-10-27 Xavier 实测报告与原始证据](results/fov_levels_xavier_20261027/README.md)。
+
+第一轮 level 定义为中心全分辨率矩形大小：`80x46 / 160x90 / 320x180 / 480x270 / 640x360`。
+外围固定为半分辨率重建再上采样；这不是视角度数，也不是不同外围分辨率。
+每档都在相同帧上重新测 `full / half_base / fov`，不与 HEVC 比较。
+
+在 Xavier 的仓库根目录，用已有数据运行（NumPy/Pillow 与 nvcc 需可用）：
+
+```bash
+git pull --ff-only
+bash jetson_cuda/run_levels.sh /path/to/frames_cleanpass results/xavier/levels_01 16 100
+```
+
+这会为四组序列各均匀取 16 帧，编译 `sm_72`、自检，跑五档 ROI 和 resident/stream 两种计时。
+每配置独立跑三次，每次预热 10 次、计时 100 次；每次只取最后一次计时的实际输出评估质量。
+脚本使用 `--batch-frames`，在一个 CUDA 进程中依次评估清单内所有帧，省去重复创建 CUDA 上下文；
+每帧仍单独分配、预热、计时，不复用前一帧的重建结果。进程启动与分配均不计入重建时间。
+先跑通可将 `16 100` 换成 `2 20`。输出目录必须不存在，避免覆盖旧实验。
+64 帧导出约 475 MiB；默认不保留中间图像，保留原始时间 CSV 与日志。
+
+如果已经有导出的 `.pir` 包，可直接运行：
+
+```bash
+python3 jetson_cuda/evaluate_levels.py --binary ./build/pirate_bench \
+  --manifest data/xavier_sample/manifest.txt --out results/xavier/levels_eval_01 \
+  --repeats 100 --quality-runs 3 --timing both
+```
+
+`evaluation/summary.csv` 给出每组序列、每档 ROI 的质量与 p50/p95/p99 时间，以及对 full 的 p50 加速比。
+`quality.csv` 是逐帧逐次质量，`timings.csv` 是逐次时间，`raw/` 保存原程序 CSV/日志；
+`metadata.json` 保存输入/程序哈希、设备环境和参数，板上可用时自动记录 `tegrastats.log`。
+只有出现 `COMPLETE` 才表示整轮执行完成。
+
+质量均为**重建右眼对 ground truth**：原溢出公式 `legacy_whole_psnr_db` 保留不变；
+另列 `standard_psnr_db`（float64 差分，255 峰值）和 `delta_vs_full_db`（两者对 GT 的分数差）。
+全图、固定中心 `160x90`、固定外围、各档自己的 ROI/外围分别计算；跨 level 优先比较固定区域，
+避免比较面积变化造成误导。summary 是逐帧/逐次 dB 的算术均值。原 kernel 写入竞争仍存在，
+三次独立输出用于观察变化；这些样本不是三条独立视频，也不等于感知质量或完整双眼结果。
+
+GPU resident 包含降采样、重建、上采样和 ROI 合成；stream 的 wall time 另含输入上传和输出回传。
+两者都排除文件读取、分配、质量计算和图像保存；`gpu_timeline_ms` 不含传输。
+记录原功耗/时钟配置，不自动更改功耗模式；正式比较应保持相同配置并检查温度/频率记录。
+
+### 可选的上采样加速
+
+编译新版后，给 `pirate_bench` 或 `evaluate_levels.py` 加 `--fast-resample` 可启用
+FP32 的 2×双线性上采样，并让线程沿连续像素排列（32×8 block）。默认仍为原 FP64 路径，
+便于做同档 ROI 的优化前后对照。当前 2×比例的坐标/权重为二进制可精确表示的分数；
+`--self-test` 会验证随机字节图像的 FP32/FP64 上采样逐字节一致。
+这不是降低重建几何精度，未更改视差/光流计算；完整输出仍受旧视差 kernel 的竞争写入影响。
+开启前后应使用独立输出目录，不能将缩小 ROI 与此优化合并归因。
+
+主机可运行 `python3 jetson_cuda/report_levels.py RUN_DIRECTORY --plot` 汇总并画图（额外需要 matplotlib）。
+汇总按实际计时样本计算 p50/p95/p99，质量按帧/独立运行计算，不把一个输出当作多次质量样本。
+
 ## 1. 先看这几个文件
 
 | 文件 | 用途 |
@@ -70,6 +127,19 @@ g++ --version
 ```
 
 若没有 `nvcc`，需要安装/补齐当前 JetPack 对应的 CUDA 开发工具链；只有 CUDA runtime 不足以编译。无需处理 Numba 安装。
+
+如果是已配置 NVIDIA apt 源、已有 GCC 与 CUDA 11.4 runtime 的 Xavier，也可将开发组件解压到项目目录，
+无需改动系统 CUDA 安装（本次 R35.6.4 板子已验证）：
+
+```bash
+mkdir -p toolchains/cuda114/debs toolchains/cuda114/root
+(cd toolchains/cuda114/debs && apt-get download cuda-nvcc-11-4 cuda-cudart-dev-11-4 cuda-cccl-11-4)
+for package in toolchains/cuda114/debs/*.deb; do
+  dpkg-deb -x "$package" toolchains/cuda114/root
+done
+export PATH="$PWD/toolchains/cuda114/root/usr/local/cuda-11.4/bin:$PATH"
+nvcc --version
+```
 
 **最简单的编译方式**，在项目根目录运行：
 
@@ -277,4 +347,4 @@ Xavier 复现实验前记录 `nvpmodel -q`、`jetson_clocks --show` 和散热/�
 
 已在本机 RTX 3080 Laptop、Windows、CUDA 12.8 编译执行；通过合成图像的 full/base/FOV、自检中的恒等/平移重建与填洞、原 PSNR 溢出规则检查。已读取四组 Driving 的第 7、39 帧并执行三种模式；Xavier `sm_72` kernel 编译检查与 CMake 构建检查记录见 `jetson_cuda/VALIDATION.md`。
 
-**尚未在实际 Xavier 设备上执行。** 不能把本机 `.cu` 耗时当作 Xavier 结果。移植包的下一项验收是在 Xavier 上运行自检和六组速度矩阵，保留输出 CSV、日志、JetPack/功耗/时钟信息。
+**2026-10-27 已完成实际 Xavier 编译、自检和五档 FOV 的 resident/stream 测试。** 设备为 Jetson AGX Xavier，L4T R35.6.4，CUDA 11.4，15W。请使用 [Xavier 实测报告](results/fov_levels_xavier_20261027/README.md) 的板上数据；前面的 RTX 记录仍只是本机验证。

@@ -1,0 +1,79 @@
+{
+  "created_utc": "2026-10-27T19:11:00.265139+00:00",
+  "platform": "Linux-5.10.216-tegra-aarch64-with-glibc2.29",
+  "binary": "/home/yingtian/stereo-fov-20261027/pirate_bench_fast",
+  "binary_sha256": "b7bb2f26bca4ed00247e094fad9fd29e2c73a961ae390b0e789821ed584c02f8",
+  "runner_sha256": "05bbf515627bd09a48d8715d29a8f319a43eb590a7d4d460f3db7df1cde20067",
+  "arguments": {
+    "binary": "pirate_bench_fast",
+    "manifest": "xavier_sample/manifest.txt",
+    "out": "optimized",
+    "levels": "80x46,160x90,320x180,480x270,640x360",
+    "timing": "both",
+    "repeats": 20,
+    "warmup": 10,
+    "quality_runs": 3,
+    "fixed_region": "160x90",
+    "keep_images": false,
+    "batch_frames": false,
+    "fast_resample": true
+  },
+  "packets": [
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/xavier_sample/driving_15_300_0007.pir",
+      "sha256": "93d2deb20cd2b68b85c510e49e61b693a687268d1f869778ee0f5fab88ff81f2",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/xavier_sample/driving_15_300_0039.pir",
+      "sha256": "3ebda4bc9811f94a514419afd98fc694fd53365d1561edabc249d9455dd80c9d",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/xavier_sample/driving_15_800_0007.pir",
+      "sha256": "37f7edefeeb393fc7f190cd1077143821cf84b284a7726f02660e1946a09eece",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/xavier_sample/driving_15_800_0039.pir",
+      "sha256": "b6a5a50cdf38f7cfa72e6428feb6bbcae9be632d12eb7536f5f41bb4c1dcb2cc",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/xavier_sample/driving_35_300_0007.pir",
+      "sha256": "da13f1f0bfe019b3e5fd191c2e7ceb13d7586d47a36cd799748c5f140ec6afd2",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/xavier_sample/driving_35_300_0039.pir",
+      "sha256": "39e03286a43264fce500672a39fae359e19eb8804a85c253da2eaa142de1c722",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/xavier_sample/driving_35_800_0007.pir",
+      "sha256": "e2e75d52b8745c5f4c11e26ea0782c309587ca59e81933cd725e0c5e36202b41",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/xavier_sample/driving_35_800_0039.pir",
+      "sha256": "0c6532265e703b30da63b378d12228faba08d6a442f2d2ce9556de5e33d7b77b",
+      "width": 960,
+      "height": 540
+    }
+  ],
+  "quality_scope": "right eye vs GT; last timed output per independent run",
+  "cuda_source_sha256": "fc6cef3f7b85876a97a3a65f44fc074f563420ff7634f6116b8e1a6e691bf777",
+  "git": "fatal: not a git repository (or any of the parent directories): .git\n",
+  "power": "NV Power Mode: MODE_15W_DESKTOP\n7\nNVPM ERROR: Error opening /sys/kernel/nvpmodel_emc_cap/emc_iso_cap: 13\nNVPM ERROR: failed to read PARAM EMC: ARG MAX_FREQ: PATH /sys/kernel/nvpmodel_emc_cap/emc_iso_cap\n",
+  "clocks": "SOC family:tegra194  Machine:Jetson-AGX\nError: Run this script(/usr/bin/jetson_clocks) as a root user\n",
+  "cuda": "[Errno 2] No such file or directory: 'nvcc'",
+  "gpu": "[Errno 2] No such file or directory: 'nvidia-smi'",
+  "l4t": "# R35 (release), REVISION: 6.4, GCID: 43803471, BOARD: t186ref, EABI: aarch64, DATE: Tue Jan 27 08:01:21 UTC 2026\n"
+}

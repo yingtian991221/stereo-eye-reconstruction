@@ -1,0 +1,421 @@
+{
+  "created_utc": "2026-10-27T19:16:31.108387+00:00",
+  "platform": "Linux-5.10.216-tegra-aarch64-with-glibc2.29",
+  "binary": "/home/yingtian/stereo-fov-20261027/pirate_bench_fast",
+  "binary_sha256": "b7bb2f26bca4ed00247e094fad9fd29e2c73a961ae390b0e789821ed584c02f8",
+  "runner_sha256": "c97c25778d093b5c05e52c957d277af6b806ae642b2aac1582ede9e5061d1e45",
+  "arguments": {
+    "binary": "pirate_bench_fast",
+    "manifest": "fov_uniform16/manifest.txt",
+    "out": "uniform64",
+    "levels": "80x46,160x90,320x180,480x270,640x360",
+    "timing": "both",
+    "repeats": 30,
+    "warmup": 10,
+    "quality_runs": 1,
+    "fixed_region": "160x90",
+    "keep_images": false,
+    "batch_frames": true,
+    "fast_resample": true
+  },
+  "packets": [
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_300_0007.pir",
+      "sha256": "93d2deb20cd2b68b85c510e49e61b693a687268d1f869778ee0f5fab88ff81f2",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_300_0025.pir",
+      "sha256": "e454448e2bfe6a78eab14082e370743e94c5416cb41125c8732cad9adb556244",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_300_0045.pir",
+      "sha256": "4f29c27f44fd5f7f32a76e38ec507cf7acae4853e17658314ff6451119c50d93",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_300_0065.pir",
+      "sha256": "2dfb45e96e17ed5650f1f624c8e57570208f8dd58f28fd3faa4e4b684cd2b3d9",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_300_0083.pir",
+      "sha256": "cc5cd6596634df49ec12aaa0946040c7ead2c6c43e62db24501cd92c8ec5874a",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_300_0103.pir",
+      "sha256": "73f4488ed252cbeed8eff04d17f019251e25d2eee268cc5445e5ce64cfb824b7",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_300_0123.pir",
+      "sha256": "877b23b73869d9d1c889531c746f1ebf398e84683c697dbd01893e5f2601391c",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_300_0143.pir",
+      "sha256": "cd2a69ee675629d64db9e4643ba043e438811afc9548c23cb2868a9abdc632a1",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_300_0161.pir",
+      "sha256": "b5428fc3259d7d2846357b0d3b00b6c80be635a56de402b3dc98492e3af0a277",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_300_0181.pir",
+      "sha256": "73e46dcc04ed6806d4a30272f9c7e28587facb361d8b6e74f76877de71a7322c",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_300_0201.pir",
+      "sha256": "89e30699a77ffb59a334a8dbccab77bdf9379989993d370ef10be8612a67923f",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_300_0221.pir",
+      "sha256": "b0789b788237fde2bb51a104daef263e755c3eb6ebc27a035e01d19b03d1b9d3",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_300_0239.pir",
+      "sha256": "37928fc07d7c3fa97b6d3aad2d0199044487d45a55a764e7e4409ec55b1e8763",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_300_0259.pir",
+      "sha256": "ac42d55f189c3db63feab3596f21d1402f506e2da50cb507a674040ce6853a27",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_300_0279.pir",
+      "sha256": "8ba771b94925da6e2acfd181d4b4d5c3c80e80a9eca97bf1594a3a6d5939cad7",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_300_0299.pir",
+      "sha256": "533a462cd1444ff52e051e836a90dce28f1c46887598484de9dc5ef87d9b7f33",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_800_0007.pir",
+      "sha256": "37f7edefeeb393fc7f190cd1077143821cf84b284a7726f02660e1946a09eece",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_800_0057.pir",
+      "sha256": "caccab1a1c0c9f040ee67071e4a8e854d96f39879b52423213a5cb76c0d59c27",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_800_0109.pir",
+      "sha256": "d949897dd47bd765d943bc1c8eccc1c8ac4a898a3358cba277605474197ec272",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_800_0161.pir",
+      "sha256": "20ab5fff196d1c8e994ee93ba01c0809fcfd6381f0673f802df341aeb8f98395",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_800_0211.pir",
+      "sha256": "f766875888823b2f93c53888e0156601510dd6e3bf0d1b5f8d424a1fd087accf",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_800_0263.pir",
+      "sha256": "02ba72dfb57b48ae9a1643848ab6cbd37d7e5a37d07bc7aa541d3ecc3a42a823",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_800_0315.pir",
+      "sha256": "b79c0fdbe78ca00b29bd357b24e31fc473798a46286f34fcd90f9ab033ddd7cf",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_800_0367.pir",
+      "sha256": "0bab85420e2f35e48ecb85d5ae4098ea03f8b75e121984c48bd50811a944b2cd",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_800_0417.pir",
+      "sha256": "6027ffd78656ad0cce2967a1e8792062d3fa4f45a0c7f18bcb15490aed78a9e4",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_800_0469.pir",
+      "sha256": "1c51e685a9b579e26caabb3f756832db1a27364681dd9fa3486553a1f4dbda0d",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_800_0521.pir",
+      "sha256": "641cae5852af284ef1b72afbc5c61ce30091c61f8b885d2dac7970145f451014",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_800_0573.pir",
+      "sha256": "812ceb4f12556df0d7bef6c78398167b2c5e18bea25f2584ac3ba2e0ebdd1b27",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_800_0623.pir",
+      "sha256": "7335713dde3a35d12a6ebfebf2cfcbc5b6579390ee31cf90e9e4b54f8a5b5e6a",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_800_0675.pir",
+      "sha256": "18bc5a4496688dfd6c98225bc6278ec1c549a237a194cbfa63ef4e773aee06f3",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_800_0727.pir",
+      "sha256": "2513d63975652b0d8e34ae39a595a187c0ed6f39a7faeac1830fa3f1b88e0e9b",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_15_800_0779.pir",
+      "sha256": "652ef9740ff2af842c63f5843846388e3445f26afe8501dc9f965c6673504295",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_300_0007.pir",
+      "sha256": "da13f1f0bfe019b3e5fd191c2e7ceb13d7586d47a36cd799748c5f140ec6afd2",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_300_0025.pir",
+      "sha256": "0b5952328e8de170f9b62a42231eaa8218593bbfe5da9a1ee7b8604c88359092",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_300_0045.pir",
+      "sha256": "45a8387fb32993d23265848b2e0cd778170a7a9b6f724287848b87cf45ad35e9",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_300_0065.pir",
+      "sha256": "c3daa8d96a737262f67859b13416a77e80f9c2d3de7d65578487053886040d6e",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_300_0083.pir",
+      "sha256": "ef5f2b3aa378d9eb2b0a19ff9d02a57abb40460eb8e1ccb4268b563528e660be",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_300_0103.pir",
+      "sha256": "9a859551fbf20b058237f5eefb23dd21670f59347f9761ddf42ae206a1b7402a",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_300_0123.pir",
+      "sha256": "ee7effb96a9ec2287e2bb45aceec22c5de6be4051102644e3f4472fd92be6d21",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_300_0143.pir",
+      "sha256": "f19c60d8fc7b338d87c151c9258454bc233dae51af1619f1bcc98d81da8e3658",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_300_0161.pir",
+      "sha256": "0084d41e930581704259a7e2beeb403a2a75696700aced9ded572c561d83e3d5",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_300_0181.pir",
+      "sha256": "6e454bd3e25b4d162edcce9e955ee6e2aeb1ae1fa858a60a7687f148cd81ff8a",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_300_0201.pir",
+      "sha256": "07afc81b1f6d6273672d4ff4f5f02e3adbf7023154aeb9df94c99fde5afe7de3",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_300_0221.pir",
+      "sha256": "4468923a923b4b3310453f1075252127bbfe46dc0fab63ece1198426ea75e936",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_300_0239.pir",
+      "sha256": "4eeb4dac7bcd77fa5d29966f3cf3559a0e5e5dd014238d312fe34399f5866a05",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_300_0259.pir",
+      "sha256": "5c8c0b655d867b85a35c039d5971052321791c26f4f4906fff8d2563e7227fb6",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_300_0279.pir",
+      "sha256": "018c45debbbb52b87d27773af0f6754289aba8c6af018b72150a3454f769226a",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_300_0299.pir",
+      "sha256": "2c7e7b65c5f671d9f0c84af636161b5f0cdb97d5bed2c3896f1f2781b195c95a",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_800_0007.pir",
+      "sha256": "e2e75d52b8745c5f4c11e26ea0782c309587ca59e81933cd725e0c5e36202b41",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_800_0057.pir",
+      "sha256": "96218a0d89746f1f04219864e98bdee9aaa3b0dc1f990d0c841c28a1f8b8fac8",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_800_0109.pir",
+      "sha256": "95ddd513f2448ad48fb5b85fad87958195ab738dd16b64637b3f055845bd58ef",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_800_0161.pir",
+      "sha256": "b4f16f3571ef505e2d87747ceecfba6b2182a8568284501de1e24588210ad3c7",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_800_0211.pir",
+      "sha256": "0f91699267c0614e9efd67f66959520e6f05e876f70a4210d463035e1277eca4",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_800_0263.pir",
+      "sha256": "7f1eb569ec5d485281adb8d28e280794d70284775f0846ed3b0c9cfa2b837d75",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_800_0315.pir",
+      "sha256": "b1a801c22806e96d057a59a0e5f99e91a2bc109fd8dcd0b48dd7640053de8569",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_800_0367.pir",
+      "sha256": "acfb486b79bb60834e5bb427f054b142d4c872ca8c5211089534af245daa9c24",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_800_0417.pir",
+      "sha256": "a5fadde3805e7eceaaafa4a15ecdb9e0f39ae09b5100e6aac100465c32a649cd",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_800_0469.pir",
+      "sha256": "5f97873daddc37a728279450ca97fb1aba55b1194b2123a9c51def5fa9d53da9",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_800_0521.pir",
+      "sha256": "30d43ff4187287d6a2c505cd3de932508b8ced9afd647eabf98a37a49c9430e9",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_800_0573.pir",
+      "sha256": "b063aeb4dba7fdce23f012b4943886ce9dbd0f45b7d72bb3a1b16b12cd0838bb",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_800_0623.pir",
+      "sha256": "893b078c53146ff82bafacab2b4eb0c47139c0eb7953d1a561291326ebaa76da",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_800_0675.pir",
+      "sha256": "828a8a1c2906b74583b192eb3cd8ec13cbad1c68ebc663bf197f39b1bc33cbfd",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_800_0727.pir",
+      "sha256": "907912971bf4277b1b46c877a8a4c061e7ed7c2e01e24d077e8e5c3b47bc7a5e",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "/home/yingtian/stereo-fov-20261027/fov_uniform16/driving_35_800_0779.pir",
+      "sha256": "772df38ab570812f357daf48044b01a1e58198841697c56133703e419add0a43",
+      "width": 960,
+      "height": 540
+    }
+  ],
+  "quality_scope": "right eye vs GT; last timed output per independent run",
+  "cuda_source_sha256": "fc6cef3f7b85876a97a3a65f44fc074f563420ff7634f6116b8e1a6e691bf777",
+  "git": "fatal: not a git repository (or any of the parent directories): .git\n",
+  "power": "NV Power Mode: MODE_15W_DESKTOP\n7\nNVPM ERROR: Error opening /sys/kernel/nvpmodel_emc_cap/emc_iso_cap: 13\nNVPM ERROR: failed to read PARAM EMC: ARG MAX_FREQ: PATH /sys/kernel/nvpmodel_emc_cap/emc_iso_cap\n",
+  "clocks": "SOC family:tegra194  Machine:Jetson-AGX\nError: Run this script(/usr/bin/jetson_clocks) as a root user\n",
+  "cuda": "[Errno 2] No such file or directory: 'nvcc'",
+  "gpu": "[Errno 2] No such file or directory: 'nvidia-smi'",
+  "l4t": "# R35 (release), REVISION: 6.4, GCID: 43803471, BOARD: t186ref, EABI: aarch64, DATE: Tue Jan 27 08:01:21 UTC 2026\n",
+  "gpu_clock_at_start": {
+    "cur_freq": "318750000",
+    "min_freq": "318750000",
+    "max_freq": "675750000",
+    "governor": "nvhost_podgov"
+  }
+}

@@ -1,0 +1,12 @@
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2022 NVIDIA Corporation
+Built on Sun_Oct_23_22:16:07_PDT_2022
+Cuda compilation tools, release 11.4, V11.4.315
+Build cuda_11.4.r11.4/compiler.31964100_0
+850b7531bc375148beacc889b204653641ff34ff3036cdf0c6a3cd9e0bda2275  /home/yingtian/stereo-fov-20261027/src/pirate_bench.cu
+fc6cef3f7b85876a97a3a65f44fc074f563420ff7634f6116b8e1a6e691bf777  /home/yingtian/stereo-fov-20261027/fast_src/pirate_bench.cu
+0124ce2ae33f3ee61d62fc47f2ce27a9646b14d9c0c310c64a8385a41a318188  /home/yingtian/stereo-fov-20261027/pirate_bench
+b7bb2f26bca4ed00247e094fad9fd29e2c73a961ae390b0e789821ed584c02f8  /home/yingtian/stereo-fov-20261027/pirate_bench_fast
+318750000
+675750000
+nvhost_podgov

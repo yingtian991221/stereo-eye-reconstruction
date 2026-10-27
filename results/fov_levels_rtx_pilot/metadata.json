@@ -1,0 +1,75 @@
+{
+  "created_utc": "2026-10-27T18:56:20.978541+00:00",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "binary": "C:\\Users\\yingt\\Datasets\\PIRATE\\cuda_port_build\\build\\pirate_bench.exe",
+  "binary_sha256": "95760cf4dfe6036a1e37931c45d6955e073a29b7e62db1d8dfbb6d41ae1e4d05",
+  "runner_sha256": "fa5e8ada5c8b7ac7e8e148f6c9710142926d93b8485c6018ade997997340976f",
+  "arguments": {
+    "binary": "C:\\Users\\yingt\\Datasets\\PIRATE\\cuda_port_build\\build\\pirate_bench.exe",
+    "manifest": "C:\\Users\\yingt\\Datasets\\PIRATE\\xavier_sample\\manifest.txt",
+    "out": "results\\fov_levels_rtx_pilot",
+    "levels": "80x46,160x90,320x180,480x270,640x360",
+    "timing": "both",
+    "repeats": 20,
+    "warmup": 10,
+    "quality_runs": 3,
+    "fixed_region": "160x90",
+    "keep_images": false
+  },
+  "packets": [
+    {
+      "file": "C:\\Users\\yingt\\Datasets\\PIRATE\\xavier_sample\\driving_15_300_0007.pir",
+      "sha256": "93d2deb20cd2b68b85c510e49e61b693a687268d1f869778ee0f5fab88ff81f2",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "C:\\Users\\yingt\\Datasets\\PIRATE\\xavier_sample\\driving_15_300_0039.pir",
+      "sha256": "3ebda4bc9811f94a514419afd98fc694fd53365d1561edabc249d9455dd80c9d",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "C:\\Users\\yingt\\Datasets\\PIRATE\\xavier_sample\\driving_15_800_0007.pir",
+      "sha256": "37f7edefeeb393fc7f190cd1077143821cf84b284a7726f02660e1946a09eece",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "C:\\Users\\yingt\\Datasets\\PIRATE\\xavier_sample\\driving_15_800_0039.pir",
+      "sha256": "b6a5a50cdf38f7cfa72e6428feb6bbcae9be632d12eb7536f5f41bb4c1dcb2cc",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "C:\\Users\\yingt\\Datasets\\PIRATE\\xavier_sample\\driving_35_300_0007.pir",
+      "sha256": "da13f1f0bfe019b3e5fd191c2e7ceb13d7586d47a36cd799748c5f140ec6afd2",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "C:\\Users\\yingt\\Datasets\\PIRATE\\xavier_sample\\driving_35_300_0039.pir",
+      "sha256": "39e03286a43264fce500672a39fae359e19eb8804a85c253da2eaa142de1c722",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "C:\\Users\\yingt\\Datasets\\PIRATE\\xavier_sample\\driving_35_800_0007.pir",
+      "sha256": "e2e75d52b8745c5f4c11e26ea0782c309587ca59e81933cd725e0c5e36202b41",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "file": "C:\\Users\\yingt\\Datasets\\PIRATE\\xavier_sample\\driving_35_800_0039.pir",
+      "sha256": "0c6532265e703b30da63b378d12228faba08d6a442f2d2ce9556de5e33d7b77b",
+      "width": 960,
+      "height": 540
+    }
+  ],
+  "quality_scope": "right eye vs GT; last timed output per independent run",
+  "git": "0e68575b8069024f6ffbdb80fb9cfc92f674c139\n",
+  "power": "[WinError 2] The system cannot find the file specified",
+  "clocks": "[WinError 2] The system cannot find the file specified",
+  "cuda": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2022 NVIDIA Corporation\nBuilt on Wed_Sep_21_10:41:10_Pacific_Daylight_Time_2022\nCuda compilation tools, release 11.8, V11.8.89\nBuild cuda_11.8.r11.8/compiler.31833905_0\n",
+  "gpu": "Tue Oct 27 11:56:21 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 571.96                 Driver Version: 571.96         CUDA Version: 12.8     |\n|-----------------------------------------+------------------------+----------------------+\n| GPU  Name                  Driver-Model | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA GeForce RTX 3080 ...  WDDM  |   00000000:01:00.0  On |                  N/A |\n| N/A   41C    P8             16W /  165W |     652MiB /  16384MiB |     16%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n                                                                                         \n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|    0   N/A  N/A             468    C+G   ...\\codex-computer-use-swift.exe      N/A      |\n|    0   N/A  N/A            1804    C+G   ...IA app\\CEF\\NVIDIA Overlay.exe      N/A      |\n|    0   N/A  N/A            4644    C+G   ...5n1h2txyewy\\TextInputHost.exe      N/A      |\n|    0   N/A  N/A            6888    C+G   ...xyewy\\AccountsControlHost.exe      N/A      |\n|    0   N/A  N/A            7676    C+G   ...2txyewy\\CrossDeviceResume.exe      N/A      |\n|    0   N/A  N/A            8248    C+G   ....0.4283.62\\msedgewebview2.exe      N/A      |\n|    0   N/A  N/A           12640    C+G   ...2p2nqsd0c76g0\\app\\ChatGPT.exe      N/A      |\n|    0   N/A  N/A           14412    C+G   ...ntrolPanel\\SystemSettings.exe      N/A      |\n|    0   N/A  N/A           14952    C+G   ...xyewy\\ShellExperienceHost.exe      N/A      |\n|    0   N/A  N/A           17276    C+G   ...em32\\ApplicationFrameHost.exe      N/A      |\n|    0   N/A  N/A           17592    C+G   ...8bbwe\\Microsoft.CmdPal.UI.exe      N/A      |\n|    0   N/A  N/A           18112    C+G   ....0.4283.62\\msedgewebview2.exe      N/A      |\n|    0   N/A  N/A           20604    C+G   ...y\\StartMenuExperienceHost.exe      N/A      |\n|    0   N/A  N/A           20768    C+G   ...t\\Edge\\Application\\msedge.exe      N/A      |\n|    0   N/A  N/A           21000    C+G   ...8bbwe\\PhoneExperienceHost.exe      N/A      |\n|    0   N/A  N/A           21332    C+G   ..._cw5n1h2txyewy\\SearchHost.exe      N/A      |\n|    0   N/A  N/A           22580    C+G   ...lus\\logioptionsplus_agent.exe      N/A      |\n|    0   N/A  N/A           25972    C+G   ...mba6cd70vzyy\\ArmouryCrate.exe      N/A      |\n|    0   N/A  N/A           29144    C+G   ...indows\\System32\\ShellHost.exe      N/A      |\n|    0   N/A  N/A           29288    C+G   ...App_cw5n1h2txyewy\\LockApp.exe      N/A      |\n|    0   N/A  N/A           29428    C+G   ...2p2nqsd0c76g0\\app\\ChatGPT.exe      N/A      |\n|    0   N/A  N/A           29776    C+G   ...IA app\\CEF\\NVIDIA Overlay.exe      N/A      |\n|    0   N/A  N/A           30308    C+G   C:\\Windows\\explorer.exe               N/A      |\n|    0   N/A  N/A           30704    C+G   ...Chrome\\Application\\chrome.exe      N/A      |\n|    0   N/A  N/A           31952    C+G   ....0.4283.62\\msedgewebview2.exe      N/A      |\n+-----------------------------------------------------------------------------------------+\n"
+}

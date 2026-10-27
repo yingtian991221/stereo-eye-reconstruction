@@ -1,5 +1,14 @@
 # CUDA 移植验证记录
 
+## 2026-10-27：Xavier 实机补充
+
+已在 Jetson AGX Xavier（L4T R35.6.4、CUDA 11.4.315、15W Desktop mode 7）完成编译、自检及五档 ROI 的 resident/stream 对照。
+可选 `--fast-resample` 的 FP32/连续像素线程上采样通过随机字节图像与 FP64 逐字节一致性检查。
+原始计时、逐帧质量、温度和源码快照见 [板上实测报告](../results/fov_levels_xavier_20261027/README.md)。
+真实重建仍保留旧版竞争写入，完整图像不保证逐像素一致；不要将上采样模块的一致性检查扩大为整条路径的确定性保证。
+
+## 2026-10-02：历史工作站验证
+
 日期：2026-10-02。执行设备：Windows 本机 RTX 3080 Laptop（SM 8.6），CUDA Toolkit 12.8.61，MSVC 19.44；不是 Xavier 实测。
 
 已完成：

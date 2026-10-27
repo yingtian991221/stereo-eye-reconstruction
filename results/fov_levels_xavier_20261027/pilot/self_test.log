@@ -1,0 +1,2 @@
+GPU=Xavier SM=72
+SELF_TEST_OK: constant full/base/FOV, identity warp, translated disparity/flow/fill CPU reference, ROI coverage/feather, legacy PSNR wrap/zero

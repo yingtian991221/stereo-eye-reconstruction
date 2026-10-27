@@ -1,0 +1,2 @@
+GPU=NVIDIA GeForce RTX 3080 Laptop GPU SM=86
+SELF_TEST_OK: constant full/base/FOV, identity warp, translated disparity/flow/fill CPU reference, ROI coverage/feather, legacy PSNR wrap/zero

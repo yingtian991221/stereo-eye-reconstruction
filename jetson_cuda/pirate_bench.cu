@@ -173,18 +173,22 @@ __global__ void downsampleKernel(const Byte *left, const Byte *prev, const uint1
     f2[2 * t] = flow[2 * s];
     f2[2 * t + 1] = flow[2 * s + 1];
 }
+template <typename Real = double, bool Coalesced = false>
 __global__ void upsampleKernel(const Byte *src, Byte *dst, int w, int h, int W, int H) {
-    int y = blockIdx.x * blockDim.x + threadIdx.x, x = blockIdx.y * blockDim.y + threadIdx.y;
+    int a = blockIdx.x * blockDim.x + threadIdx.x, b = blockIdx.y * blockDim.y + threadIdx.y;
+    int x = Coalesced ? a : b, y = Coalesced ? b : a;
     if (x >= W || y >= H)
         return;
-    double yy = fmax(0.0, fmin(double(h - 1), (y + 0.5) * h / H - 0.5));
-    double xx = fmax(0.0, fmin(double(w - 1), (x + 0.5) * w / W - 0.5));
+    Real yy = (Real(y) + Real(0.5)) * (Real(h) / H) - Real(0.5);
+    Real xx = (Real(x) + Real(0.5)) * (Real(w) / W) - Real(0.5);
+    yy = yy < 0 ? 0 : (yy > h - 1 ? h - 1 : yy);
+    xx = xx < 0 ? 0 : (xx > w - 1 ? w - 1 : xx);
     int y0 = int(yy), x0 = int(xx), y1 = min(y0 + 1, h - 1), x1 = min(x0 + 1, w - 1);
-    double fy = yy - y0, fx = xx - x0;
+    Real fy = yy - y0, fx = xx - x0;
     for (int c = 0; c < 3; c++) {
-        double top = src[(y0 * w + x0) * 3 + c] * (1 - fx) + src[(y0 * w + x1) * 3 + c] * fx;
-        double bot = src[(y1 * w + x0) * 3 + c] * (1 - fx) + src[(y1 * w + x1) * 3 + c] * fx;
-        dst[(y * W + x) * 3 + c] = static_cast<Byte>(top * (1 - fy) + bot * fy + 0.5);
+        Real top = src[(y0 * w + x0) * 3 + c] * (1 - fx) + src[(y0 * w + x1) * 3 + c] * fx;
+        Real bot = src[(y1 * w + x0) * 3 + c] * (1 - fx) + src[(y1 * w + x1) * 3 + c] * fx;
+        dst[(y * W + x) * 3 + c] = static_cast<Byte>(top * (1 - fy) + bot * fy + Real(0.5));
     }
 }
 __global__ void overlayKernel(const Byte *roi, Byte *dst, int rw, int W, int x0, int y0, int cw,
@@ -218,6 +222,7 @@ struct Pipeline {
     Buffer<Byte> output;
     int cw, ch, x0, y0;
     bool precomputed;
+    bool fastResample = false;
     Pipeline(int w, int h, int CW, int CH, int cx, int cy, bool pre)
         : full(w, h), half(w / 2, h / 2), fullWork(w, h), halfWork(w / 2, h / 2),
           roi(CW + 6, CH + 6), output(w * h * 3), cw(CW), ch(CH), x0(cx - CW / 2 - 3),
@@ -237,8 +242,12 @@ struct Pipeline {
             downsample();
         Params hp = {p.d * 0.5, p.umax * 0.5, p.vmax * 0.5, p.umin * 0.5, p.vmin * 0.5};
         reconstruct(half, halfWork, hp);
-        upsampleKernel<<<grid(full.w, full.h), block>>>(halfWork.out.p, output.p, half.w, half.h,
-                                                        full.w, full.h);
+        if (fastResample)
+            upsampleKernel<float, true><<<dim3((full.w+31)/32, (full.h+7)/8), dim3(32,8)>>>(
+                halfWork.out.p, output.p, half.w, half.h, full.w, full.h);
+        else
+            upsampleKernel<double><<<grid(full.w, full.h), block>>>(halfWork.out.p, output.p,
+                                                                  half.w, half.h, full.w, full.h);
         if (mode == 2) {
             reconstruct(full, roi, p, x0, y0);
             overlayKernel<<<grid(cw, ch), block>>>(roi.out.p, output.p, roi.w, full.w, x0, y0, cw,
@@ -322,7 +331,7 @@ double percentile(std::vector<double> v, double q) {
 struct Options {
     std::string manifest, input, csv = "timings.csv", dump;
     int repeats = 100, warmup = 10, rw = 160, rh = 90, cx = -1, cy = -1;
-    bool pre = false, stream = false, self = false;
+    bool pre = false, stream = false, self = false, fast = false;
 };
 Options parse(int argc, char **argv) {
     Options o;
@@ -331,9 +340,13 @@ Options parse(int argc, char **argv) {
         if (k == "--help") {
             std::cout << "pirate_bench --manifest PATH | --input FILE [--roi-width 160 "
                          "--roi-height 90 --center-x X --center-y Y --repeats 100 --warmup 10 "
-                         "--csv timings.csv --dump-prefix PATH --stream --precomputed-base]\n      "
+                         "--csv timings.csv --dump-prefix PATH --stream --precomputed-base --fast-resample]\n      "
                          " pirate_bench --self-test\n";
             std::exit(0);
+        }
+        if (k == "--fast-resample") {
+            o.fast = true;
+            continue;
         }
         if (k == "--precomputed-base") {
             o.pre = true;
@@ -498,6 +511,21 @@ void selfTest() {
                     throw std::runtime_error("ROI coverage/feather reference test failed");
             }
         }
+    // Isolate resampling from the legacy disparity write races. 2x bilinear
+    // weights are exact quarters; products of byte pixels are exact in FP32.
+    for (int W : {64, 960, 1920}) {
+        int H = W == 64 ? 48 : W * 9 / 16;
+        std::vector<Byte> pixels(W / 2 * (H / 2) * 3), ref(W * H * 3), fast(ref.size());
+        uint32_t state = 17;
+        for (auto &v : pixels) { state = state * 1664525u + 1013904223u; v = Byte(state >> 24); }
+        Buffer<Byte> src(pixels.size()), dst(ref.size());
+        src.upload(pixels);
+        upsampleKernel<double><<<grid(W,H), block>>>(src.p, dst.p, W/2, H/2, W, H);
+        CK(cudaMemcpy(ref.data(), dst.p, ref.size(), cudaMemcpyDeviceToHost));
+        upsampleKernel<float, true><<<dim3((W+31)/32, (H+7)/8), dim3(32,8)>>>(src.p, dst.p, W/2, H/2, W, H);
+        CK(cudaMemcpy(fast.data(), dst.p, fast.size(), cudaMemcpyDeviceToHost));
+        if (fast != ref) throw std::runtime_error("FP32 resample differs from FP64");
+    }
     // Preserve original PSNR overflow: (0-255) modulo 256 is 1.
     std::vector<Byte> a(3, 0), b(3, 255);
     if (std::abs(legacyPSNR(a, b) - 20 * std::log10(255.0)) > 1e-10)
@@ -505,7 +533,7 @@ void selfTest() {
     if (!std::isinf(legacyPSNR(a, a)))
         throw std::runtime_error("zero-MSE PSNR test failed");
     std::cout << "SELF_TEST_OK: constant full/base/FOV, identity warp, translated "
-                 "disparity/flow/fill CPU reference, ROI coverage/feather, legacy PSNR wrap/zero\n";
+                 "disparity/flow/fill CPU reference, ROI coverage/feather, FP32 resample exact, legacy PSNR wrap/zero\n";
 }
 int main(int argc, char **argv) {
     try {
@@ -541,7 +569,7 @@ int main(int argc, char **argv) {
         if (!csv)
             throw std::runtime_error("cannot write CSV");
         csv << "frame,mode,iteration,wall_ms,gpu_timeline_ms,legacy_right_psnr_db,roi_width,roi_"
-               "height,timing,downsample_included\n"
+               "height,timing,downsample_included,fast_resample\n"
             << std::setprecision(10);
         const char *names[] = {"full", "half_base", "fov"};
         for (size_t fi = 0; fi < paths.size(); fi++) {
@@ -552,6 +580,7 @@ int main(int argc, char **argv) {
                 cy - o.rh / 2 + o.rh + 3 > f.h)
                 throw std::runtime_error("ROI + 3px halo must fit frame");
             Pipeline p(f.w, f.h, o.rw, o.rh, cx, cy, o.pre);
+            p.fastResample = o.fast;
             p.full.upload(f);
             if (o.pre)
                 p.downsample();
@@ -597,7 +626,7 @@ int main(int argc, char **argv) {
                     csv << name << ',' << names[m] << ',' << r << ',' << walls[m][r] << ','
                         << gpus[m][r] << ',' << scores[m] << ',' << o.rw << ',' << o.rh << ','
                         << (o.stream ? "host_transfer" : "gpu_resident") << ','
-                        << (!o.pre && m != 0) << '\n';
+                        << (!o.pre && m != 0) << ',' << o.fast << '\n';
                 std::cout << name << " " << names[m]
                           << " wall p50/p95/p99=" << percentile(walls[m], .5) << "/"
                           << percentile(walls[m], .95) << "/" << percentile(walls[m], .99)

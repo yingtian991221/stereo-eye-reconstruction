@@ -29,7 +29,10 @@ def main():
     p.add_argument('--out', type=Path, required=True)
     p.add_argument('--workload', choices=['all'] + list(CONFIG), default='all')
     p.add_argument('--frames', default='39', help='Comma-separated odd frame IDs, or all')
+    p.add_argument('--sample-count', type=int, help='Evenly spaced odd frames per workload; overrides --frames')
     a = p.parse_args()
+    if a.sample_count is not None and a.sample_count < 1:
+        p.error('--sample-count must be positive')
     keys = list(CONFIG) if a.workload == 'all' else [a.workload]
     a.out.mkdir(parents=True, exist_ok=True)
     records = []
@@ -37,6 +40,10 @@ def main():
         rel, left, prev, depth, u, v, offset, last = CONFIG[key]
         folder = a.data_root / rel
         frames = list(range(7, last + 1, 2)) if a.frames == 'all' else sorted(set(map(int, a.frames.split(','))))
+        if a.sample_count is not None:
+            available = list(range(7, last + 1, 2))
+            indices = np.linspace(0, len(available) - 1, min(a.sample_count, len(available))).astype(int)
+            frames = [available[i] for i in indices]
         max_d = np.load(folder / 'max_array.npy', allow_pickle=False)
         max_uv = np.load(folder / 'max_uv_past.npy', allow_pickle=False)
         min_uv = np.load(folder / 'min_uv_past.npy', allow_pickle=False)
