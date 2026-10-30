@@ -110,13 +110,25 @@ const src='Source: results/fov_levels_xavier_full_20261027/README.md; overview.c
 }
 // 8: Numba compatible proof
 {
- const s=slide('Numba runs on Xavier: a small-sample check','Source: results/numba_xavier_20261029/mode7_15w/result.json, environment.txt, run.log. Four workloads, frame39 only, 100 timing samples per method, Numba0.58.1/Python3.8/CUDA11.4. Original source-function calls include allocations/transfers/debug copies and show warmup drift; not directly comparable to resident timing.');
  const n=JSON.parse(await fs.readFile(path.join(ROOT,'results/numba_xavier_20261029/mode7_15w/result.json'),'utf8'));
+ if (process.env.NUMBA30_RESULT) {
+ const thirty=JSON.parse(await fs.readFile(path.resolve(ROOT,process.env.NUMBA30_RESULT),'utf8'));
+ const keys=Object.keys(n.workloads);
+ if(keys.length!==4 || thirty.frame!==39 || thirty.repeats!==100 || !keys.every(k=>thirty.workloads[k])) throw new Error('Unmatched 30W coverage');
+ const s=slide('Numba latency at 15W and 30W','Sources: results/numba_xavier_20261029/mode7_15w/result.json and '+process.env.NUMBA30_RESULT+'. Four workloads, frame39 only, 100 samples per method. Same Numba implementation and inputs. Preallocated resident timing includes launch/synchronization; excludes JIT, allocation, transfers, I/O. Power modes: 15W Desktop mode7 and 30W 4CORE mode5. Dynamic clocks, same four CPU cores. The 30W mode raises GPU/EMC limits but lowers the CPU maximum. Original generate_right includes allocation/transfer and startup drift; it is not the resident path shown. Numba upsampling differs from optimized CUDA C++.');
+ const rows=keys.map(k=>{const a=n.workloads[k].fov_pilot,b=thirty.workloads[k].fov_pilot;return[k.replace('driving_',''),fixed(a.full.p50_ms),fixed(b.full.p50_ms),fixed(a.rois['160x90'].half_base_plus_roi.p50_ms),fixed(b.rois['160x90'].half_base_plus_roi.p50_ms)];});
+ table(s,[['Sequence','Full 15W','Full 30W','ROI 15W','ROI 30W'],...rows],64,180,1152,285,[232,230,230,230,230],26);
+ text(s,'Frame 39 per sequence, 100 repeats. Resident p50 in ms. ROI = 160×90.',64,495,1152,40,26,C.blue,true);
+ text(s,'30W 4-core mode raises the GPU cap but lowers the CPU cap versus 15W Desktop.\nDynamic clocks. Numba and optimized C++ use different upsampling implementations.',64,550,1152,72,25);
+ note(s,'Small-sample power-mode comparison, not a complete-dataset study or a language-only comparison.');
+ } else {
+ const s=slide('Numba runs on Xavier: a small-sample check','Source: results/numba_xavier_20261029/mode7_15w/result.json, environment.txt, run.log. Four workloads, frame39 only, 100 timing samples per method, Numba0.58.1/Python3.8/CUDA11.4. Original source-function calls include allocations/transfers/debug copies and show warmup drift; not directly comparable to resident timing.');
  const rows=Object.entries(n.workloads).map(([k,r])=>[k.replace('driving_',''),fixed(r.fov_pilot.full.p50_ms),fixed(r.fov_pilot.rois['160x90'].half_base_plus_roi.p50_ms),fixed(r.fov_pilot.rois['320x180'].half_base_plus_roi.p50_ms)]);
  table(s,[['Sequence','Full (ms)','ROI 160×90','ROI 320×180'],...rows],64,180,1152,285,[280,280,296,296],26);
  text(s,'15W. Frame 39 per sequence, 100 repeats. Preallocated resident-path p50.',64,495,1152,40,26,C.blue,true);
  text(s,'Numba 0.58.1 + Python 3.8: real GPU JIT and execution passed.\nIts upsampler differs from optimized CUDA C++; this is not a language-only comparison.',64,550,1152,72,25);
  note(s,'Original generate_right also runs, with allocation/transfer and startup drift. 30W awaits an authenticated power-mode switch.');
+ }
 }
 // 9: next verification
 {

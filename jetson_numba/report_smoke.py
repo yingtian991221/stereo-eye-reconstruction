@@ -62,6 +62,10 @@ source 和每种 resident 变体各有一次不计时调用，排除首次 JIT�
                 text += '\n%s 温度范围 %.1f–%.1f°C。\n' % (sensor, min(vals), max(vals))
         text += '\n[原始 JSON](%s/result.json) · [环境](%s/environment.txt) · [tegrastats](%s/tegrastats.log)\n\n' % (name, name, name)
     if len(records) == 2:
+        for field in ['numba', 'numpy', 'device', 'compute_capability', 'frame', 'repeats']:
+            assert records['mode7_15w'][field] == records['mode5_30w'][field]
+        for key in records['mode7_15w']['workloads']:
+            assert records['mode7_15w']['workloads'][key]['source_sha256'] == records['mode5_30w']['workloads'][key]['source_sha256']
         text += '## 15W → 30W：同帧同实现\n\n| Driving | full 加速 | FOV160 加速 | FOV320 加速 | FOV480 加速 |\n| --- | ---: | ---: | ---: | ---: |\n'
         for key in records['mode7_15w']['workloads']:
             old = measurements(records['mode7_15w']['workloads'][key])
@@ -69,12 +73,18 @@ source 和每种 resident 变体各有一次不计时调用，排除首次 JIT�
             text += '| ' + key + ' | ' + ' | '.join('%.2f×' % (old[i]['p50_ms'] / new[i]['p50_ms']) for i in [1, 3, 4, 5]) + ' |\n'
     else:
         text += '## 30W 状态\n\n尚无通过完整校验的 30W 结果，不据此推断加速。\n'
+    text += '\n## 原始调用的启动趋势\n\n| 模式 / 序列 | 前10次中位数 (ms) | 末10次中位数 (ms) |\n| --- | ---: | ---: |\n'
+    for name, record in records.items():
+        for key, work in record['workloads'].items():
+            samples = measurements(work)[0]['samples_ms']
+            text += '| %s / %s | %.3f | %.3f |\n' % (name, key, np.median(samples[:10]), np.median(samples[-10:]))
     text += '''
 ## 解释与复现
 
-- 模式7：15W Desktop，4核 CPU 上限2.1888GHz，实读GPU上限675.75MHz。模式5：30W 4CORE，CPU配置上限1.78GHz、GPU900MHz、EMC1600MHz。30W并非所有频率都更高；模式切换只能在两轮测试之间进行。
+- 模式7：15W Desktop，4核 CPU 上限2.1888GHz，实读GPU上限675.75MHz。模式5：30W 4CORE，实读CPU上限1.8048GHz、GPU上限905.25MHz（配置目标1.78GHz/900MHz，EMC配置1600MHz）。这些是频率上限，不是计时期间恒定频率。30W并非所有频率都更高；模式切换在两轮测试之间完成。
 - 未执行 jetson_clocks；使用动态调频。tegrastats 提供CPU频率、温度及GPU利用率，但这台板的日志没有GPU实际MHz，不能据此宣称GPU频率固定。
-- 15W 第一组 source 前10次中位数约75.4ms、末10次约47.2ms，存在明显启动趋势；source数字仅为这轮观测，不称稳态延迟。resident路径更稳定，仍是单帧小样本。
+- 15W 第一组 source 前10次中位数约75.4ms、末10次约47.2ms；30W 第一组约61.1ms到43.7ms，均有明显启动趋势。source数字仅为这轮观测，不称稳态延迟。resident路径更稳定，仍是单帧小样本。
+- resident也有轻微漂移：30W的35mm/800组，full前10/末10中位数为11.925/10.983ms，FOV160为7.119/6.786ms；一次预热不足以宣称所有路径完全稳态。功耗模式测试顺序为15W后30W，未做往返重复或置信区间。
 - 原始部分初始化、uint8深度缓存和非原子竞争写入仍保留；resident原型另做完整scratch清零。两者不能视为逐像素等价实现。ROI检查确认有像素变化且ROI外0变化。
 - Numba FOV使用旧bilinear上采样，未移植CUDA C++的fast-resample；不能把与优化C++的差异解释为语言开销。全1068帧C++结果仍见[原报告](../fov_levels_xavier_full_20261027/README.md)。
 - 初次JIT报错来自提取工具链的libcudart悬空链接；接到板上已有11.4运行库后成功，无需修改Numba或驱动。首次失败日志与30次smoke记录独立保留。
