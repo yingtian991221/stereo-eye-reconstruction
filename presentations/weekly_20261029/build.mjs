@@ -17,6 +17,13 @@ const csv=await fs.readFile(path.join(ROOT,'results/fov_levels_xavier_full_20261
 const lines=csv.trim().split(/\r?\n/).map(x=>x.split(','));const data=lines.slice(1).map(row=>Object.fromEntries(lines[0].map((k,i)=>[k,row[i]])));
 const levels=['80x46','160x90','320x180','480x270','640x360'];
 const get=(l,t='resident',m='fov')=>data.find(r=>r.level===l&&r.timing===t&&r.mode===m);
+const means=JSON.parse(await fs.readFile(path.join(OUT,'mean_timings.json'),'utf8'));
+const mean=(l,t='resident',m='fov')=>{
+ const row=means.cuda.find(r=>r.level===l&&r.timing===t&&r.mode===m);
+ if(!row || row.samples!==5340)throw new Error('Incomplete mean timing group');
+ return row.wall_mean_ms;
+};
+const region=l=>(means.cuda.find(r=>r.level===l).region_percent).toFixed(1)+'%';
 const fixed=n=>Number(n).toFixed(3), delta=n=>Number(n).toFixed(4);
 function text(s,txt,x,y,w,h,size=27,color=C.ink,bold=false){
  const sh=s.shapes.add({geometry:'textbox',position:{left:x,top:y,width:w,height:h},fill:'none',line:{fill:'none',width:0}});
@@ -60,27 +67,27 @@ const src='Source: results/fov_levels_xavier_full_20261027/README.md; overview.c
 }
 // 3: mechanism and status
 {
- const s=slide('Budget-based reconstruction selection','Proposed scheduler, not implemented/validated. t_ready denotes decoded reconstruction inputs ready. T_display and safety margin must be measured/reserved. Current implementation covers fixed-center ROI reconstruction and latency profiles.');
- const xs=[64,296,528,760,992],w=204,y=228;
- const labels=['Inputs ready\n(after decode)','Estimate\nbudget B','Latency profile\nROI selection','Reconstruct\nand blend','Submit\nfor display'];
- labels.forEach((label,i)=>{box(s,xs[i],y,w,128,i===3?C.light:C.white,i===3?C.teal:C.blue);text(s,label,xs[i]+14,y+28,w-28,90,25,C.ink,true);if(i<4)arrow(s,xs[i]+w+4,y+54,23,18);});
- text(s,'Proposed rule',64,421,210,45,29,C.blue,true);
- text(s,'Choose the highest-quality level with T̂(level) ≤ B',280,421,925,48,32,C.ink,true);
- text(s,'Use a conservative latency percentile. Validate prediction error and margin.',280,480,925,46,27,C.muted);
- note(s,'Implemented: fixed-center FOV sweep and latency profiles. Dynamic scheduling and deadline-miss reduction remain unverified.');
+ const s=slide('Adapt the full-resolution region to available time','Proposed adaptive mechanism, not implemented/validated. After inputs are ready, more remaining reconstruction time allows a larger full-resolution region; less time calls for a smaller region. The half-resolution base still covers the full image. Region sizes in this schematic are illustrative, not quantitative. Current implementation covers a fixed-center FOV sweep and latency profiles.');
+ text(s,'More time',64,233,350,58,39,C.blue,true);arrow(s,340,248,140,25,C.blue);
+ box(s,535,180,650,155,C.light,C.gray);box(s,670,200,380,115,C.white,C.blue);
+ text(s,'Larger full-resolution region',646,350,555,45,29,C.blue,true);
+ text(s,'Less time',64,446,350,58,39,C.teal,true);arrow(s,340,461,140,25,C.teal);
+ box(s,535,405,650,155,C.light,C.gray);box(s,805,452,110,62,C.white,C.teal);
+ text(s,'Smaller full-resolution region',625,575,580,40,29,C.teal,true);
+ note(s,'Proposed adaptation. Fixed-center levels are measured; scheduling and deadline-miss reduction remain unverified.');
 }
 // 4: reconstruction editable diagram
 {
- const s=slide('Half-resolution base with a full-resolution center',src+' Mechanism reflects current half base + padded full-resolution ROI + feather overlay. ROI dimensions are pixels, not angles.');
+ const s=slide('Half-resolution base with a full-resolution center',src+' Mechanism: half-resolution base + padded full-resolution ROI + feather overlay. Region percentages are spatial coverage of a 960x540 image: 80x46=0.7098765%, 160x90=2.7777778%, 320x180=11.1111111%, 480x270=25%, 640x360=44.4444444%. The base samples at 50% width and 50% height, giving 25% as many pixels (480x270), while covering the entire image. Region coverage and sampling resolution are different quantities.');
  text(s,'Shared image, disparity, and optical-flow inputs',64,151,1100,44,30);
- box(s,90,248,320,180,C.light,C.blue);text(s,'Full-image base\n480 × 270',142,290,235,80,28,C.blue,true);
- text(s,'Half resolution in the periphery',90,447,370,36,25,C.muted);
+ box(s,90,248,320,180,C.light,C.blue);text(s,'Base sampling\n50% W × 50% H\n(25% of pixels)',112,280,280,112,26,C.blue,true);
+ text(s,'Base covers the whole image',90,447,370,36,25,C.muted);
  box(s,485,248,320,180,C.white,C.gray);box(s,590,304,110,68,C.light,C.teal);text(s,'ROI',588,326,150,35,24,C.teal,true);
  text(s,'+',432,307,45,60,42,C.blue,true);text(s,'Full resolution within the ROI',485,447,370,36,25,C.muted);
  arrow(s,826,322,60,22,C.teal);box(s,910,248,300,180,C.light,C.blue);box(s,1015,304,90,68,C.white,C.teal);text(s,'Upsample + blend',920,462,290,40,28,C.blue,true);
  text(s,'960 × 540 output',943,510,285,40,26,C.muted);
- text(s,'ROI sizes: 80×46, 160×90, 320×180, 480×270, 640×360',64,552,1140,40,29,C.ink,true);
- note(s,'Fixed center, 3 px halo, and edge blending. Diagram not to scale. Eye tracking is not integrated.');
+ text(s,'Full-resolution region: 0.7%, 2.8%, 11.1%, 25.0%, 44.4% of image',64,552,1140,40,29,C.ink,true);
+ note(s,'Region % means image-area coverage; base sampling is separate. Fixed center, 3 px halo; no eye tracking.');
 }
 // 5: coverage and timing
 {
@@ -93,17 +100,17 @@ const src='Source: results/fov_levels_xavier_full_20261027/README.md; overview.c
 }
 // 6: native chart
 {
- const s=slide('Smaller ROIs reduce reconstruction latency',src+' Chart uses pooled timing medians. Full baseline is separately measured per level. Fast resample enabled. Each series value corresponds to all 1068 supported frames.');
- const chart=s.charts.add('line',{position:{left:64,top:176,width:810,height:410},categories:levels.map(v=>v.replace('x','×')),series:[{name:'FOV resident',values:levels.map(l=>Number(fixed(get(l).wall_p50_ms))),fill:C.blue},{name:'FOV stream',values:levels.map(l=>Number(fixed(get(l,'stream').wall_p50_ms))),fill:C.orange},{name:'Full resident',values:levels.map(l=>Number(fixed(get(l,'resident','full').wall_p50_ms))),fill:C.muted}],hasLegend:true,legend:{position:'bottom',textStyle:{fontSize:22}},xAxis:{textStyle:{fontSize:21}},yAxis:{min:0,max:14,majorUnit:2,title:{text:'p50 latency (ms)',textStyle:{fontSize:22}},textStyle:{fontSize:20},majorGridlines:{fill:C.gray,width:1}},chartFill:C.white,plotAreaFill:C.white});
+ const s=slide('Smaller regions reduce mean reconstruction latency',src+' Arithmetic means of all 5340 timing samples in each level/timing/mode group, computed by compute_means.py into mean_timings.json. No sample trimming. Full baseline measured separately per level. Fast resample enabled. Each value covers all 1068 supported frames. Speedup is mean(full resident)/mean(FOV resident) at the same region level. Region labels are image-area coverage, not sampling resolution.');
+ const chart=s.charts.add('bar',{position:{left:64,top:176,width:810,height:410},categories:levels.map(region),series:[{name:'FOV resident',values:levels.map(l=>Number(fixed(mean(l)))),fill:C.blue},{name:'FOV stream',values:levels.map(l=>Number(fixed(mean(l,'stream')))),fill:C.orange},{name:'Full resident',values:levels.map(l=>Number(fixed(mean(l,'resident','full')))),fill:C.muted}],barOptions:{direction:'column',grouping:'clustered',gapWidth:75,overlap:0},hasLegend:true,legend:{position:'bottom',textStyle:{fontSize:22}},xAxis:{textStyle:{fontSize:21}},yAxis:{min:0,max:14,majorUnit:2,title:{text:'Mean latency (ms)',textStyle:{fontSize:22}},textStyle:{fontSize:20},majorGridlines:{fill:C.gray,width:1}},chartFill:C.white,plotAreaFill:C.white});
  applyPresentationChartFont(chart,{fontFamily:FONT});
- text(s,'160 × 90',930,202,280,50,35,C.blue,true);text(s,'4.637 ms',930,275,300,65,45,C.ink,true);text(s,'resident p50',930,347,280,40,25,C.muted);
- text(s,'2.32×',930,417,280,62,46,C.teal,true);text(s,'versus measured full',930,485,280,40,25,C.muted);
+ text(s,'2.8% region',930,202,280,50,35,C.blue,true);text(s,fixed(mean('160x90'))+' ms',930,275,300,65,45,C.ink,true);text(s,'resident mean',930,347,280,40,25,C.muted);
+ text(s,(mean('160x90','resident','full')/mean('160x90')).toFixed(2)+'×',930,417,280,62,46,C.teal,true);text(s,'versus measured full',930,485,280,40,25,C.muted);
  note(s,'Fast resampling enabled. Cross-implementation gains also include upsampling changes, not only FOV. No claim of an optimal full baseline.');
 }
 // 7: quality native table
 {
  const s=slide('Quality–latency trade-off',src+' Original uint8-overflow PSNR preserved. Stereo delta is derived only if left eye remains unchanged and per-eye PSNR dB is averaged. Timing is never divided by two.');
- table(s,[['ROI','resident p50 / p95','Right-eye ΔPSNR','Stereo mean ΔPSNR*'],...levels.map(l=>{const r=get(l);return [l.replace('x','×'),`${fixed(r.wall_p50_ms)} / ${fixed(r.wall_p95_ms)} ms`,`${delta(r.legacy_delta_vs_full_db)} dB`,`${delta(Number(r.legacy_delta_vs_full_db)/2)} dB`]})],64,170,1152,337,[195,345,286,326],24);
+ table(s,[['Region (% of image)','Mean latency','Right-eye ΔPSNR','Stereo mean ΔPSNR*'],...levels.map(l=>{const r=get(l);return [region(l),`${fixed(mean(l))} ms`,`${delta(r.legacy_delta_vs_full_db)} dB`,`${delta(Number(r.legacy_delta_vs_full_db)/2)} dB`]})],64,170,1152,337,[265,275,286,326],24);
  text(s,'* Unchanged left eye, mean per-eye PSNR in dB: stereo difference = right-eye difference / 2',64,537,1150,40,25,C.blue,true);
  text(s,'ΔPSNR = FOV − full, using original overflow PSNR. Standard PSNR can show a different trend.',64,581,1150,36,23,C.muted);
  note(s,'Stereo values are derived; latency is not halved. Non-atomic writes remain. SSIM/LPIPS are not measured.');
@@ -115,19 +122,19 @@ const src='Source: results/fov_levels_xavier_full_20261027/README.md; overview.c
  const thirty=JSON.parse(await fs.readFile(path.resolve(ROOT,process.env.NUMBA30_RESULT),'utf8'));
  const keys=Object.keys(n.workloads);
  if(keys.length!==4 || thirty.frame!==39 || thirty.repeats!==100 || !keys.every(k=>thirty.workloads[k])) throw new Error('Unmatched 30W coverage');
- const s=slide('Numba latency at 15W and 30W','Sources: results/numba_xavier_20261029/mode7_15w/result.json and '+process.env.NUMBA30_RESULT+'. Four workloads, frame39 only, 100 samples per method. Same Numba implementation and inputs. Preallocated resident timing includes launch/synchronization; excludes JIT, allocation, transfers, I/O. Power modes: 15W Desktop mode7 and 30W 4CORE mode5. Dynamic clocks, same four CPU cores. The 30W mode raises GPU/EMC limits but lowers the CPU maximum. Original generate_right includes allocation/transfer and startup drift; it is not the resident path shown. Numba upsampling differs from optimized CUDA C++.');
- const rows=keys.map(k=>{const a=n.workloads[k].fov_pilot,b=thirty.workloads[k].fov_pilot;return[k.replace('driving_',''),fixed(a.full.p50_ms),fixed(b.full.p50_ms),fixed(a.rois['160x90'].half_base_plus_roi.p50_ms),fixed(b.rois['160x90'].half_base_plus_roi.p50_ms)];});
+ const s=slide('Numba latency at 15W and 30W','Sources: results/numba_xavier_20261029/mode7_15w/result.json and '+process.env.NUMBA30_RESULT+'. Arithmetic means from mean_timings.json of all 100 samples per method, four workloads, frame39 only. 15W was measured before 30W. No confidence intervals. Some startup drift remains. Same Numba implementation and inputs. Preallocated resident timing includes launch/synchronization; excludes JIT, allocation, transfers, I/O. Power modes: 15W Desktop mode7 and 30W 4CORE mode5. Dynamic clocks, same four CPU cores. The 30W mode raises GPU/EMC limits but lowers the CPU maximum. Original generate_right includes allocation/transfer and startup drift; it is not the resident path shown. Numba upsampling differs from optimized CUDA C++.');
+ const rows=keys.map(k=>{const a=means.numba.mode7_15w[k],b=means.numba.mode5_30w[k];return[k.replace('driving_',''),fixed(a.full),fixed(b.full),fixed(a['160x90']),fixed(b['160x90'])];});
  table(s,[['Sequence','Full 15W','Full 30W','ROI 15W','ROI 30W'],...rows],64,180,1152,285,[232,230,230,230,230],26);
- text(s,'Frame 39 per sequence, 100 repeats. Resident p50 in ms. ROI = 160×90.',64,495,1152,40,26,C.blue,true);
+ text(s,'Frame 39 per sequence, 100 repeats. Resident mean in ms. Region = 2.8% of image.',64,495,1152,40,26,C.blue,true);
  text(s,'30W 4-core mode raises the GPU cap but lowers the CPU cap versus 15W Desktop.\nDynamic clocks. Numba and optimized C++ use different upsampling implementations.',64,550,1152,72,25);
  note(s,'Small-sample power-mode comparison, not a complete-dataset study or a language-only comparison.');
  } else {
- const s=slide('Numba runs on Xavier: a small-sample check','Source: results/numba_xavier_20261029/mode7_15w/result.json, environment.txt, run.log. Four workloads, frame39 only, 100 timing samples per method, Numba0.58.1/Python3.8/CUDA11.4. Original source-function calls include allocations/transfers/debug copies and show warmup drift; not directly comparable to resident timing.');
- const rows=Object.entries(n.workloads).map(([k,r])=>[k.replace('driving_',''),fixed(r.fov_pilot.full.p50_ms),fixed(r.fov_pilot.rois['160x90'].half_base_plus_roi.p50_ms),fixed(r.fov_pilot.rois['320x180'].half_base_plus_roi.p50_ms)]);
- table(s,[['Sequence','Full (ms)','ROI 160×90','ROI 320×180'],...rows],64,180,1152,285,[280,280,296,296],26);
- text(s,'15W. Frame 39 per sequence, 100 repeats. Preallocated resident-path p50.',64,495,1152,40,26,C.blue,true);
+ const s=slide('Numba runs on Xavier: a small-sample check','Source: results/numba_xavier_20261029/mode7_15w/result.json, environment.txt, run.log. Arithmetic means from mean_timings.json of 100 timing samples per method, four workloads, frame39 only. No confidence intervals. Numba0.58.1/Python3.8/CUDA11.4. Original source-function calls include allocations/transfers/debug copies and show warmup drift; not directly comparable to resident timing.');
+ const rows=Object.keys(n.workloads).map(k=>{const r=means.numba.mode7_15w[k];return[k.replace('driving_',''),fixed(r.full),fixed(r['160x90']),fixed(r['320x180'])];});
+ table(s,[['Sequence','Full (ms)','Region 2.8%','Region 11.1%'],...rows],64,180,1152,285,[280,280,296,296],26);
+ text(s,'15W. Frame 39 per sequence, 100 repeats. Preallocated resident-path mean.',64,495,1152,40,26,C.blue,true);
  text(s,'Numba 0.58.1 + Python 3.8: real GPU JIT and execution passed.\nIts upsampler differs from optimized CUDA C++; this is not a language-only comparison.',64,550,1152,72,25);
- note(s,'Original generate_right also runs, with allocation/transfer and startup drift. 30W awaits an authenticated power-mode switch.');
+ note(s,'Original generate_right also runs with allocation/transfer and startup drift. See the companion deck for 30W.');
  }
 }
 // 9: next verification

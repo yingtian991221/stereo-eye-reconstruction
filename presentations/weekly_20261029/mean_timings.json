@@ -1,0 +1,301 @@
+{
+  "statistic": "arithmetic mean of recorded wall_ms samples",
+  "timing_source": "results\\fov_levels_xavier_full_20261027\\timings.csv",
+  "timing_sha256": "a6aa847caf91131ef7b41336b42efa137ddf6cb22d7c5560a47ed7d15e776499",
+  "cuda": [
+    {
+      "level": "160x90",
+      "timing": "resident",
+      "mode": "fov",
+      "samples": 5340,
+      "region_percent": 2.7777777777777777,
+      "wall_mean_ms": 4.770260521722847
+    },
+    {
+      "level": "160x90",
+      "timing": "resident",
+      "mode": "full",
+      "samples": 5340,
+      "region_percent": 2.7777777777777777,
+      "wall_mean_ms": 11.022366991947566
+    },
+    {
+      "level": "160x90",
+      "timing": "resident",
+      "mode": "half_base",
+      "samples": 5340,
+      "region_percent": 2.7777777777777777,
+      "wall_mean_ms": 4.217170157116104
+    },
+    {
+      "level": "160x90",
+      "timing": "stream",
+      "mode": "fov",
+      "samples": 5340,
+      "region_percent": 2.7777777777777777,
+      "wall_mean_ms": 6.727888082397003
+    },
+    {
+      "level": "160x90",
+      "timing": "stream",
+      "mode": "full",
+      "samples": 5340,
+      "region_percent": 2.7777777777777777,
+      "wall_mean_ms": 13.160688480337079
+    },
+    {
+      "level": "160x90",
+      "timing": "stream",
+      "mode": "half_base",
+      "samples": 5340,
+      "region_percent": 2.7777777777777777,
+      "wall_mean_ms": 6.044170227153558
+    },
+    {
+      "level": "320x180",
+      "timing": "resident",
+      "mode": "fov",
+      "samples": 5340,
+      "region_percent": 11.11111111111111,
+      "wall_mean_ms": 5.998138486516854
+    },
+    {
+      "level": "320x180",
+      "timing": "resident",
+      "mode": "full",
+      "samples": 5340,
+      "region_percent": 11.11111111111111,
+      "wall_mean_ms": 11.144200675280898
+    },
+    {
+      "level": "320x180",
+      "timing": "resident",
+      "mode": "half_base",
+      "samples": 5340,
+      "region_percent": 11.11111111111111,
+      "wall_mean_ms": 4.258213457116105
+    },
+    {
+      "level": "320x180",
+      "timing": "stream",
+      "mode": "fov",
+      "samples": 5340,
+      "region_percent": 11.11111111111111,
+      "wall_mean_ms": 7.838692032771536
+    },
+    {
+      "level": "320x180",
+      "timing": "stream",
+      "mode": "full",
+      "samples": 5340,
+      "region_percent": 11.11111111111111,
+      "wall_mean_ms": 12.95174852022472
+    },
+    {
+      "level": "320x180",
+      "timing": "stream",
+      "mode": "half_base",
+      "samples": 5340,
+      "region_percent": 11.11111111111111,
+      "wall_mean_ms": 5.9666681910112365
+    },
+    {
+      "level": "480x270",
+      "timing": "resident",
+      "mode": "fov",
+      "samples": 5340,
+      "region_percent": 25.0,
+      "wall_mean_ms": 7.772001359550562
+    },
+    {
+      "level": "480x270",
+      "timing": "resident",
+      "mode": "full",
+      "samples": 5340,
+      "region_percent": 25.0,
+      "wall_mean_ms": 11.042230426966292
+    },
+    {
+      "level": "480x270",
+      "timing": "resident",
+      "mode": "half_base",
+      "samples": 5340,
+      "region_percent": 25.0,
+      "wall_mean_ms": 4.218899232771535
+    },
+    {
+      "level": "480x270",
+      "timing": "stream",
+      "mode": "fov",
+      "samples": 5340,
+      "region_percent": 25.0,
+      "wall_mean_ms": 9.65546215093633
+    },
+    {
+      "level": "480x270",
+      "timing": "stream",
+      "mode": "full",
+      "samples": 5340,
+      "region_percent": 25.0,
+      "wall_mean_ms": 12.879133369850187
+    },
+    {
+      "level": "480x270",
+      "timing": "stream",
+      "mode": "half_base",
+      "samples": 5340,
+      "region_percent": 25.0,
+      "wall_mean_ms": 5.959559360674158
+    },
+    {
+      "level": "640x360",
+      "timing": "resident",
+      "mode": "fov",
+      "samples": 5340,
+      "region_percent": 44.44444444444444,
+      "wall_mean_ms": 10.425282636891385
+    },
+    {
+      "level": "640x360",
+      "timing": "resident",
+      "mode": "full",
+      "samples": 5340,
+      "region_percent": 44.44444444444444,
+      "wall_mean_ms": 11.086671057116105
+    },
+    {
+      "level": "640x360",
+      "timing": "resident",
+      "mode": "half_base",
+      "samples": 5340,
+      "region_percent": 44.44444444444444,
+      "wall_mean_ms": 4.238119598314607
+    },
+    {
+      "level": "640x360",
+      "timing": "stream",
+      "mode": "fov",
+      "samples": 5340,
+      "region_percent": 44.44444444444444,
+      "wall_mean_ms": 12.19293850093633
+    },
+    {
+      "level": "640x360",
+      "timing": "stream",
+      "mode": "full",
+      "samples": 5340,
+      "region_percent": 44.44444444444444,
+      "wall_mean_ms": 12.79563001142322
+    },
+    {
+      "level": "640x360",
+      "timing": "stream",
+      "mode": "half_base",
+      "samples": 5340,
+      "region_percent": 44.44444444444444,
+      "wall_mean_ms": 5.911354806367042
+    },
+    {
+      "level": "80x46",
+      "timing": "resident",
+      "mode": "fov",
+      "samples": 5340,
+      "region_percent": 0.7098765432098766,
+      "wall_mean_ms": 4.561668691947566
+    },
+    {
+      "level": "80x46",
+      "timing": "resident",
+      "mode": "full",
+      "samples": 5340,
+      "region_percent": 0.7098765432098766,
+      "wall_mean_ms": 11.186700156367042
+    },
+    {
+      "level": "80x46",
+      "timing": "resident",
+      "mode": "half_base",
+      "samples": 5340,
+      "region_percent": 0.7098765432098766,
+      "wall_mean_ms": 4.282826703932584
+    },
+    {
+      "level": "80x46",
+      "timing": "stream",
+      "mode": "fov",
+      "samples": 5340,
+      "region_percent": 0.7098765432098766,
+      "wall_mean_ms": 6.363717523595506
+    },
+    {
+      "level": "80x46",
+      "timing": "stream",
+      "mode": "full",
+      "samples": 5340,
+      "region_percent": 0.7098765432098766,
+      "wall_mean_ms": 12.941694743445693
+    },
+    {
+      "level": "80x46",
+      "timing": "stream",
+      "mode": "half_base",
+      "samples": 5340,
+      "region_percent": 0.7098765432098766,
+      "wall_mean_ms": 5.946627638764045
+    }
+  ],
+  "numba": {
+    "mode7_15w": {
+      "driving_15_300": {
+        "full": 14.660762489656918,
+        "160x90": 8.923504250997212,
+        "320x180": 10.30360614968231,
+        "480x270": 12.49338546040235
+      },
+      "driving_15_800": {
+        "full": 14.432699587778188,
+        "160x90": 8.910474749864079,
+        "320x180": 10.282255359634291,
+        "480x270": 12.467058821057435
+      },
+      "driving_35_300": {
+        "full": 14.536738058668561,
+        "160x90": 8.9112662198022,
+        "320x180": 10.323438900522888,
+        "480x270": 12.514197321725078
+      },
+      "driving_35_800": {
+        "full": 14.567069878976326,
+        "160x90": 8.958583222411107,
+        "320x180": 10.37221386883175,
+        "480x270": 12.634233389690053
+      }
+    },
+    "mode5_30w": {
+      "driving_15_300": {
+        "full": 11.039366049226373,
+        "160x90": 6.8031875509768724,
+        "320x180": 7.836909880279563,
+        "480x270": 9.479534699057695
+      },
+      "driving_15_800": {
+        "full": 10.870369850890711,
+        "160x90": 6.784152910404373,
+        "320x180": 7.821012729255017,
+        "480x270": 9.447034420154523
+      },
+      "driving_35_300": {
+        "full": 10.913651178125292,
+        "160x90": 6.792874930542894,
+        "320x180": 7.852946530038025,
+        "480x270": 9.484102571150288
+      },
+      "driving_35_800": {
+        "full": 11.045370649953838,
+        "160x90": 6.84069557901239,
+        "320x180": 7.894673769478686,
+        "480x270": 9.549560669693165
+      }
+    }
+  }
+}

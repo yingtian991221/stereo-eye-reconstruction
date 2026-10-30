@@ -8,6 +8,10 @@ The main results come from `results/fov_levels_xavier_full_20261027/README.md`, 
 
 The jitter diagram is schematic. Dynamic scheduling and deadline-miss improvements remain proposed work. The 90 FPS frame period, display deadline, and local reconstruction timing are distinguished. The original overflow PSNR is preserved, and the stereo-mean difference is explicitly conditional and derived.
 
+Both decks now use arithmetic mean latency throughout the results slides. Slide 6 is an editable grouped column chart. Slide 7 reports mean latency only, with region coverage expressed as a percentage of the full image. Slide 3 states the adaptive mechanism directly: more time allows a larger full-resolution region, while less time calls for a smaller region. The approved jitter slide is unchanged.
+
+`compute_means.py` generates `mean_timings.json` from all 5,340 recorded CUDA timing samples per level/mode/timing group and all 100 Numba samples per path. The builder reads this committed JSON directly, so a GitHub clone can rebuild the decks without extracting the original timing files. To recompute the means, the CUDA `timings.csv` is available in `results/fov_levels_xavier_full_20261027/evidence.tar.gz` (and already exists locally). No dataset extraction is needed. The underlying measurement reports and their original p50/p95 values are unchanged.
+
 ## Rebuild
 
 `build.mjs` uses the installed Artifact Tool runtime. Run from the repository root. Choose a new output name because the finalizer does not overwrite existing outputs:
