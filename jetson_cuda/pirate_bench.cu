@@ -84,6 +84,25 @@ __global__ void clearKernel(Byte *a, Byte *b, Byte *out, Byte *z, Byte *mask, in
     for (int c = 0; c < 3; c++)
         a[i * 3 + c] = b[i * 3 + c] = out[i * 3 + c] = 0;
 }
+// Same zero bytes as clearKernel, with neighboring lanes writing neighboring
+// bytes. This does not retain any scratch state between reconstructions.
+__global__ void clearLinearKernel(Byte *a, Byte *b, Byte *out, Byte *z, Byte *mask, int n) {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < 3 * n)
+        a[i] = b[i] = out[i] = 0;
+    if (i < n)
+        z[i] = mask[i] = 0;
+}
+void clearWork(Work &work, bool fastClear) {
+    if (fastClear) {
+        int n = work.w * work.h;
+        clearLinearKernel<<<(3 * n + 255) / 256, 256>>>(
+            work.temporal.p, work.spatial.p, work.out.p, work.z.p, work.mask.p, n);
+    } else {
+        clearKernel<<<grid(work.w, work.h), block>>>(work.temporal.p, work.spatial.p,
+            work.out.p, work.z.p, work.mask.p, work.w, work.h);
+    }
+}
 __global__ void temporalKernel(const Byte *prev, const uint16_t *flow, Byte *out, int W, int H,
                                int w, int h, int x0, int y0, Params p) {
     int y = blockIdx.x * blockDim.x + threadIdx.x, x = blockIdx.y * blockDim.y + threadIdx.y;
@@ -204,10 +223,10 @@ __global__ void overlayKernel(const Byte *roi, Byte *dst, int rw, int W, int x0,
             static_cast<Byte>(dst[t] * (1 - a) + roi[((y + 3) * rw + x + 3) * 3 + c] * a + 0.5);
     }
 }
-void reconstruct(Input &in, Work &work, Params p, int x0 = 0, int y0 = 0) {
+void reconstruct(Input &in, Work &work, Params p, int x0 = 0, int y0 = 0,
+                 bool fastClear = false) {
     int w = work.w, h = work.h, sw = std::min(in.w - x0, w + int(std::ceil(p.d)));
-    clearKernel<<<grid(w, h), block>>>(work.temporal.p, work.spatial.p, work.out.p, work.z.p,
-                                       work.mask.p, w, h);
+    clearWork(work, fastClear);
     temporalKernel<<<grid(w, h), block>>>(in.prev.p, in.flow.p, work.temporal.p, in.w, in.h, w, h,
                                           x0, y0, p);
     disparityKernel<<<grid(sw, h), block>>>(in.left.p, in.depth.p, work.spatial.p, work.z.p, in.w,
@@ -223,6 +242,7 @@ struct Pipeline {
     int cw, ch, x0, y0;
     bool precomputed;
     bool fastResample = false;
+    bool fastClear = false;
     Pipeline(int w, int h, int CW, int CH, int cx, int cy, bool pre)
         : full(w, h), half(w / 2, h / 2), fullWork(w, h), halfWork(w / 2, h / 2),
           roi(CW + 6, CH + 6), output(w * h * 3), cw(CW), ch(CH), x0(cx - CW / 2 - 3),
@@ -235,13 +255,13 @@ struct Pipeline {
     }
     Byte *run(int mode, Params p) {
         if (mode == 0) {
-            reconstruct(full, fullWork, p);
+            reconstruct(full, fullWork, p, 0, 0, fastClear);
             return fullWork.out.p;
         }
         if (!precomputed)
             downsample();
         Params hp = {p.d * 0.5, p.umax * 0.5, p.vmax * 0.5, p.umin * 0.5, p.vmin * 0.5};
-        reconstruct(half, halfWork, hp);
+        reconstruct(half, halfWork, hp, 0, 0, fastClear);
         if (fastResample)
             upsampleKernel<float, true><<<dim3((full.w+31)/32, (full.h+7)/8), dim3(32,8)>>>(
                 halfWork.out.p, output.p, half.w, half.h, full.w, full.h);
@@ -249,7 +269,7 @@ struct Pipeline {
             upsampleKernel<double><<<grid(full.w, full.h), block>>>(halfWork.out.p, output.p,
                                                                   half.w, half.h, full.w, full.h);
         if (mode == 2) {
-            reconstruct(full, roi, p, x0, y0);
+            reconstruct(full, roi, p, x0, y0, fastClear);
             overlayKernel<<<grid(cw, ch), block>>>(roi.out.p, output.p, roi.w, full.w, x0, y0, cw,
                                                    ch, 8);
         }
@@ -336,7 +356,7 @@ double percentile(std::vector<double> v, double q) {
 struct Options {
     std::string manifest, input, csv = "timings.csv", dump;
     int repeats = 100, warmup = 10, rw = 160, rh = 90, cx = -1, cy = -1;
-    bool pre = false, stream = false, self = false, fast = false;
+    bool pre = false, stream = false, self = false, fast = false, fastClear = false;
 };
 Options parse(int argc, char **argv) {
     Options o;
@@ -345,12 +365,16 @@ Options parse(int argc, char **argv) {
         if (k == "--help") {
             std::cout << "pirate_bench --manifest PATH | --input FILE [--roi-width 160 "
                          "--roi-height 90 --center-x X --center-y Y --repeats 100 --warmup 10 "
-                         "--csv timings.csv --dump-prefix PATH --stream --precomputed-base --fast-resample]\n      "
+                         "--csv timings.csv --dump-prefix PATH --stream --precomputed-base --fast-resample --fast-clear]\n      "
                          " pirate_bench --self-test\n";
             std::exit(0);
         }
         if (k == "--fast-resample") {
             o.fast = true;
+            continue;
+        }
+        if (k == "--fast-clear") {
+            o.fastClear = true;
             continue;
         }
         if (k == "--precomputed-base") {
@@ -462,7 +486,44 @@ std::vector<Byte> referenceFull(const Frame &f) {
         }
     return out;
 }
+void selfTestClear() {
+    const int dimensions[][2] = {{1, 1}, {3, 5}, {102, 60}, {246, 141},
+                                 {486, 276}, {726, 411}, {960, 540}};
+    const int guard = 17; // Deliberately misalign the active pointer as well.
+    for (const auto &size : dimensions) {
+        int w = size[0], h = size[1], n = w * h;
+        std::vector<Byte> rgb(3 * n + 2 * guard), mono(n + 2 * guard);
+        for (size_t i = 0; i < rgb.size(); ++i) rgb[i] = Byte(1 + (i * 37) % 254);
+        for (size_t i = 0; i < mono.size(); ++i) mono[i] = Byte(1 + (i * 53) % 254);
+        std::vector<Byte> expectedRGB = rgb, expectedMono = mono;
+        std::fill(expectedRGB.begin() + guard, expectedRGB.end() - guard, 0);
+        std::fill(expectedMono.begin() + guard, expectedMono.end() - guard, 0);
+        Buffer<Byte> a(rgb.size()), b(rgb.size()), out(rgb.size()), z(mono.size()), mask(mono.size());
+        std::vector<Byte> gotRGB(rgb.size()), gotMono(mono.size());
+        for (int fast = 0; fast < 2; ++fast) {
+            a.upload(rgb); b.upload(rgb); out.upload(rgb); z.upload(mono); mask.upload(mono);
+            if (fast)
+                clearLinearKernel<<<(3 * n + 255) / 256, 256>>>(
+                    a.p + guard, b.p + guard, out.p + guard, z.p + guard, mask.p + guard, n);
+            else
+                clearKernel<<<grid(w, h), block>>>(a.p + guard, b.p + guard, out.p + guard,
+                                                   z.p + guard, mask.p + guard, w, h);
+            CK(cudaGetLastError());
+            for (const Byte *ptr : {a.p, b.p, out.p}) {
+                CK(cudaMemcpy(gotRGB.data(), ptr, gotRGB.size(), cudaMemcpyDeviceToHost));
+                if (gotRGB != expectedRGB)
+                    throw std::runtime_error("clear RGB byte/guard self-test failed");
+            }
+            for (const Byte *ptr : {z.p, mask.p}) {
+                CK(cudaMemcpy(gotMono.data(), ptr, gotMono.size(), cudaMemcpyDeviceToHost));
+                if (gotMono != expectedMono)
+                    throw std::runtime_error("clear mono byte/guard self-test failed");
+            }
+        }
+    }
+}
 void selfTest() {
+    selfTestClear();
     Frame f;
     f.w = 64;
     f.h = 48;
@@ -476,12 +537,15 @@ void selfTest() {
     Pipeline p(f.w, f.h, 16, 12, 32, 24, false);
     p.full.upload(f);
     std::vector<Byte> out(n * 3);
-    for (int mode = 0; mode < 3; mode++) {
-        Byte *d = p.run(mode, f.p);
-        CK(cudaMemcpy(out.data(), d, out.size(), cudaMemcpyDeviceToHost));
-        if (out != f.left)
-            throw std::runtime_error("constant-image self-test failed");
-    }
+    for (int fastClear = 0; fastClear < 2; ++fastClear)
+        for (int mode = 0; mode < 3; mode++) {
+            p.fastClear = fastClear;
+            Byte *d = p.run(mode, f.p);
+            CK(cudaMemcpy(out.data(), d, out.size(), cudaMemcpyDeviceToHost));
+            if (out != f.left)
+                throw std::runtime_error("constant-image self-test failed");
+        }
+    p.fastClear = false;
     // Nonconstant zero-disparity warp must reproduce every source pixel.
     for (size_t i = 0; i < f.left.size(); i++)
         f.left[i] = Byte(1 + (i * 17) % 254);
@@ -538,7 +602,8 @@ void selfTest() {
     if (!std::isinf(legacyPSNR(a, a)))
         throw std::runtime_error("zero-MSE PSNR test failed");
     std::cout << "SELF_TEST_OK: constant full/base/FOV, identity warp, translated "
-                 "disparity/flow/fill CPU reference, ROI coverage/feather, FP32 resample exact, legacy PSNR wrap/zero\n";
+                 "disparity/flow/fill CPU reference, ROI coverage/feather, FP32 resample exact, "
+                 "old/fast clear byte equality and guards, legacy PSNR wrap/zero\n";
 }
 int main(int argc, char **argv) {
     try {
@@ -574,7 +639,7 @@ int main(int argc, char **argv) {
         if (!csv)
             throw std::runtime_error("cannot write CSV");
         csv << "frame,mode,iteration,wall_ms,gpu_timeline_ms,legacy_right_psnr_db,roi_width,roi_"
-               "height,timing,downsample_included,fast_resample\n"
+               "height,timing,downsample_included,fast_resample,fast_clear\n"
             << std::setprecision(10);
         const char *names[] = {"full", "half_base", "fov"};
         for (size_t fi = 0; fi < paths.size(); fi++) {
@@ -586,6 +651,7 @@ int main(int argc, char **argv) {
                 throw std::runtime_error("ROI + 3px halo must fit frame");
             Pipeline p(f.w, f.h, o.rw, o.rh, cx, cy, o.pre);
             p.fastResample = o.fast;
+            p.fastClear = o.fastClear;
             p.full.upload(f);
             if (o.pre)
                 p.downsample();
@@ -631,10 +697,12 @@ int main(int argc, char **argv) {
                     csv << name << ',' << names[m] << ',' << r << ',' << walls[m][r] << ','
                         << gpus[m][r] << ',' << scores[m] << ',' << o.rw << ',' << o.rh << ','
                         << (o.stream ? "host_transfer" : "gpu_resident") << ','
-                        << (!o.pre && m != 0) << ',' << o.fast << '\n';
+                        << (!o.pre && m != 0) << ',' << o.fast << ',' << o.fastClear << '\n';
                 std::cout << name << " " << names[m]
-                          << " wall p50/p95/p99=" << percentile(walls[m], .5) << "/"
-                          << percentile(walls[m], .95) << "/" << percentile(walls[m], .99)
+                          << " wall mean=";
+                double meanWall = 0;
+                for (double value : walls[m]) meanWall += value;
+                std::cout << meanWall / walls[m].size()
                           << " ms legacy_right_PSNR=" << scores[m] << '\n';
                 if (!o.dump.empty())
                     ppm(o.dump + "_" + std::to_string(fi) + "_" + names[m] + ".ppm", images[m], f.w,

@@ -19,6 +19,7 @@ results/fov_scales_*/raw/
 results/fov_scales_*/timings.csv
 results/fov_scales_*/quality.csv
 results/fov_scales_*/source/
+results/fast_clear_*/raw/
 results/fov_levels_*/raw/
 results/fov_levels_*/timings.csv
 results/fov_levels_*/quality.csv

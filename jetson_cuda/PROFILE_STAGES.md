@@ -5,6 +5,12 @@ uses exactly the same kernels, parameters, launch layouts and output buffers.
 It adds timing boundaries, not a reconstruction optimization. No Graph or
 cross-frame reuse is introduced.
 
+`--fast-clear` optionally enables the same contiguous scratch-clear kernel in
+both reference and staged variants. It clears exactly the same five buffers
+and byte ranges as the default kernel. The flag is recorded as `fast_clear`
+in each CSV row. Leave it off for historical baseline reproduction. Compare
+Full and FOV under the same flag when evaluating relative speedups.
+
 ```bash
 nvcc -O3 -std=c++14 --fmad=false -arch=sm_72 profile_stages.cu -o profile_stages
 ./profile_stages --self-test

@@ -1,0 +1,24 @@
+{
+  "binary": "/home/yingtian/stereo-fast-clear-20261029/pirate_bench",
+  "binary_sha256": "38d676c3457a7d600bed6cd2b754c85a6bc76aee34521169ce2fc56eab14ffcc",
+  "manifest": "/home/yingtian/stereo-fast-clear-20261029/manifest.txt",
+  "manifest_contents": "../stereo-fov-full-20261027/fov_full1068/driving_15_300_0039.pir\n../stereo-fov-full-20261027/fov_full1068/driving_15_800_0039.pir\n../stereo-fov-full-20261027/fov_full1068/driving_35_300_0039.pir\n../stereo-fov-full-20261027/fov_full1068/driving_35_800_0039.pir\n",
+  "warmup": 10,
+  "repeats": 100,
+  "variant_order": [
+    "original",
+    "fast",
+    "fast",
+    "original"
+  ],
+  "fast_resample": true,
+  "timing": "resident",
+  "frames": "four Driving workloads, frame39 each",
+  "decode_budget_ms": 2,
+  "source_sha256": {
+    "pirate_bench.cu": "9d82c7e7cb82b042c11d0e82dcc76441150c86d40d0e2b830f29721ae08d895a",
+    "profile_stages.cu": "e8dec928ac97e5a15b48629c9cec8780a9507302bf1b2defc0a0028205cbb18d",
+    "benchmark_fast_clear.py": "47ef17c8680f757b649d7e31ad72fc50a8e587de60dc6eef77eee3d90b9e29e2"
+  },
+  "inputs_hash_matched_full1068_metadata": true
+}

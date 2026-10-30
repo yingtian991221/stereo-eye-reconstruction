@@ -43,6 +43,8 @@ PIRATE_BIN=./build/pirate_bench bash jetson_cuda/run_matrix.sh \
 
 ## FOV level 的质量与时间联合测试
 
+可选优化 `--fast-clear`：连续访存清空相同的五个缓冲区，Full/FOV同时应用，默认保留旧路径。[四帧配对试测](results/fast_clear_xavier_20261029/README.md)中，FOV加固定2ms预算后的均值降低约18–24%。清零逐字节自检通过；优化后的完整1068帧质量尚未复测，PPT仍采用正式全量实验数据。
+
 **最新四档：[0.1× / 0.25× / 0.5× / 0.75× 全量实测](results/fov_scales_full_20261029/README.md)**。中心区域对应96×54、240×135、480×270、720×405；30W下完整覆盖1068有效帧，时间和质量来自同一轮，统一报告均值，另加每帧固定2ms解码预算。0.75×在当前实现中没有速度收益，原始记录和旧档位结果均保留。
 
 重跑使用 `evaluate_levels.py --levels 96x54,240x135,480x270,720x405 --timing resident --batch-size 32 --warmup 3 --repeats 5 --quality-runs 1 --fast-resample`（另提供 `--binary`、`--manifest`、新 `--out`）。汇总：`python jetson_cuda/report_scale_sweep.py NEW_OUT --plot`。下方旧五档命令用于历史实验对照；重跑旧档需显式传入旧 `--levels`。

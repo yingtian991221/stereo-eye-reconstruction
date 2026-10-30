@@ -36,11 +36,10 @@ struct Trace {
         CK(cudaEventRecord(events[count].e));
     }
     void reconstructStages(Input &in, Work &work, Params p, const char *pass,
-                           int x0 = 0, int y0 = 0) {
+                           int x0 = 0, int y0 = 0, bool fastClear = false) {
         int w = work.w, h = work.h;
         int sw = std::min(in.w - x0, w + int(std::ceil(p.d)));
-        clearKernel<<<grid(w, h), block>>>(work.temporal.p, work.spatial.p, work.out.p,
-                                           work.z.p, work.mask.p, w, h);
+        clearWork(work, fastClear);
         mark("clear", pass);
         temporalKernel<<<grid(w, h), block>>>(in.prev.p, in.flow.p, work.temporal.p,
                                               in.w, in.h, w, h, x0, y0, p);
@@ -57,14 +56,14 @@ struct Trace {
     Byte *run(Pipeline &p, int mode, Params params) {
         begin();
         if (mode == 0) {
-            reconstructStages(p.full, p.fullWork, params, "full");
+            reconstructStages(p.full, p.fullWork, params, "full", 0, 0, p.fastClear);
             return p.fullWork.out.p;
         }
         p.downsample();
         mark("downsample", "base");
         Params half = {params.d * 0.5, params.umax * 0.5, params.vmax * 0.5,
                        params.umin * 0.5, params.vmin * 0.5};
-        reconstructStages(p.half, p.halfWork, half, "base");
+        reconstructStages(p.half, p.halfWork, half, "base", 0, 0, p.fastClear);
         if (p.fastResample)
             upsampleKernel<float, true><<<dim3((p.full.w + 31) / 32, (p.full.h + 7) / 8),
                                          dim3(32, 8)>>>(
@@ -74,7 +73,7 @@ struct Trace {
                 p.halfWork.out.p, p.output.p, p.half.w, p.half.h, p.full.w, p.full.h);
         mark("upsample", "base");
         if (mode == 2) {
-            reconstructStages(p.full, p.roi, params, "roi", p.x0, p.y0);
+            reconstructStages(p.full, p.roi, params, "roi", p.x0, p.y0, p.fastClear);
             overlayKernel<<<grid(p.cw, p.ch), block>>>(p.roi.out.p, p.output.p, p.roi.w,
                                                        p.full.w, p.x0, p.y0, p.cw, p.ch, 8);
             mark("overlay", "roi");
@@ -148,7 +147,7 @@ void write(std::ostream &csv, const std::string &frame, const char *mode, int it
     csv << frame << ',' << mode << ',' << iteration << ',' << variant << ',' << stage
         << ',' << pass << ',' << gpu << ',' << s.wall << ',' << s.reconstructionWall
         << ',' << s.h2dApi << ',' << s.d2hApi << ',' << o.rw << ',' << o.rh << ','
-        << (o.stream ? "host_transfer" : "gpu_resident") << ',' << o.fast << '\n';
+        << (o.stream ? "host_transfer" : "gpu_resident") << ',' << o.fast << ',' << o.fastClear << '\n';
 }
 } // namespace stage_profile
 
@@ -159,7 +158,7 @@ int main(int argc, char **argv) {
             if (std::string(argv[i]) == "--help") {
                 std::cout << "profile_stages --input FILE | --manifest PATH --csv NEW.csv "
                              "[--roi-width 160 --roi-height 90 --repeats 100 --warmup 10 "
-                             "--fast-resample --stream]\n"
+                             "--fast-resample --fast-clear --stream]\n"
                              "Alternates reference and staged measurements, writes raw GPU stage "
                              "times and CPU wall diagnostics. Decoding is not measured.\n";
                 return 0;
@@ -176,7 +175,7 @@ int main(int argc, char **argv) {
         if (!csv) throw std::runtime_error("cannot create CSV");
         csv << "frame,mode,iteration,variant,stage,pass,gpu_ms,wall_total_ms,"
                "cpu_reconstruction_enqueue_ms,h2d_api_wall_ms,d2h_api_wall_ms,"
-               "roi_width,roi_height,timing,fast_resample\n" << std::setprecision(10);
+               "roi_width,roi_height,timing,fast_resample,fast_clear\n" << std::setprecision(10);
         const char *names[] = {"full", "half_base", "fov"};
         for (const auto &path : paths) {
             Frame f = load(path);
@@ -187,6 +186,7 @@ int main(int argc, char **argv) {
                 throw std::runtime_error("ROI + 3px halo must fit frame");
             Pipeline p(f.w, f.h, o.rw, o.rh, cx, cy, false);
             p.fastResample = o.fast;
+            p.fastClear = o.fastClear;
             p.full.upload(f);
             CK(cudaDeviceSynchronize());
             Trace trace;

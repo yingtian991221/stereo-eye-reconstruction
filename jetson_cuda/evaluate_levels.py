@@ -85,6 +85,7 @@ def main():
     parser.add_argument('--batch-frames', action='store_true', help='One CUDA process per level/run; retain per-frame warmups and timing')
     parser.add_argument('--batch-size', type=int, help='Bound frames per CUDA process and temporary image disk usage')
     parser.add_argument('--fast-resample', action='store_true', help='Use byte-exact FP32 2x resampling')
+    parser.add_argument('--fast-clear', action='store_true', help='Clear the same scratch bytes with contiguous stores')
     args = parser.parse_args()
     if args.batch_size is not None and args.batch_size < 1:
         parser.error('--batch-size must be positive')
@@ -178,6 +179,8 @@ def main():
                             cmd.append('--stream')
                         if args.fast_resample:
                             cmd.append('--fast-resample')
+                        if args.fast_clear:
+                            cmd.append('--fast-clear')
                         with Path(str(prefix) + '.log').open('w') as log:
                             log.write(json.dumps(cmd) + '\n')
                             log.flush()
