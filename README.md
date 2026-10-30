@@ -43,6 +43,8 @@ PIRATE_BIN=./build/pirate_bench bash jetson_cuda/run_matrix.sh \
 
 ## FOV level 的质量与时间联合测试
 
+[图片合成 HEVC MP4 后的实测解码结果](results/hevc_decode_xavier_20261029/README.md)：四组2200帧，FFmpeg编码、Jetson NVDEC解码，分别报告逐帧平均延迟与流水吞吐。硬解码预热后应用可见延迟约2.40–2.51ms；尚未包含NV12到BGR转换及与重建的互操作。
+
 [CUDA C++ 按论文阶段的 breakdown](results/cu_breakdown_xavier_20261029/README.md)：Xavier 30W、四组第39帧的小样本，全部使用均值。单列重投影、合成补洞、清零、FOV额外步骤和CPU/GPU拷贝；解码未测。
 
 Numba 也已在 Xavier 真实 GPU 上跑通：见 [Numba 环境与重跑说明](jetson_numba/README.md) 和 [15W/30W 四组 frame 39 小样本对照](results/numba_xavier_20261029/README.md)。它使用旧上采样实现，不能直接把与优化 CUDA C++ 的差异解释为语言开销。

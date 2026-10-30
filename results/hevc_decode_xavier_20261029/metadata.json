@@ -1,0 +1,11 @@
+{
+  "date": "2026-10-29",
+  "power_mode": 5,
+  "videos": 4,
+  "unique_frames": 2200,
+  "repeats_per_video": 3,
+  "hardware_output": "NV12 in NVMM",
+  "ffmpeg_hardware_attempt": "invalid: 294 outputs for 300-frame input",
+  "default_serial_note": "Initial runner predates enable_max_performance metadata field; property was not set, decoder default false. Later max-performance runs set true explicitly.",
+  "source_snapshot": "Current scripts, including subsequently added --max-performance and --decoders options; original default output JSON left intact."
+}
