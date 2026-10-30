@@ -4,19 +4,17 @@
 
 The requested order is network jitter and remaining budget, reconstruction mechanism, then results. The approved jitter slide is unchanged. The simplified mechanism uses two equal 16:9 picture frames with centered 16:9 ROIs, a larger region for more time and a smaller region for less time. Diagrams use native editable shapes and text, tables remain editable, and slide 5 is a native stacked column chart with an embedded data workbook.
 
-## Current timing and quality sources
+## Current results
 
-The presentation selects three measured scales: **0.1×, 0.25× and 0.5×**. Page 6 reports only positive derived **stereo PSNR loss** (0.0859, 0.0785 and 0.0599 dB). The measured 0.75× results remain intact in the source JSON and reports, but are omitted from the slide chart/table.
+The slides use the saved partial results in `results/fov_only_clear_partial_20261030/presentation_results.json`, not a completed full-dataset run. The experiment was stopped at the user’s request. No new GPU testing was performed to build this deck.
 
-Both timing and quality now use the same complete 30W CUDA C++ run over 1068 supported forward odd frames, with four region-width scales: 0.1×, 0.25×, 0.5× and 0.75×. These correspond to 96×54, 240×135, 480×270 and 720×405 pixels within the 960×540 output. Base sampling remains 0.5× in each dimension; ROI pixels remain full-resolution. All displayed scale labels on pages 4–6 use linear width scale, not area fraction.
+Four linear region-width scales are shown: 0.1×, 0.25×, 0.5× and 0.7× (96×54, 240×135, 480×270, 672×378). Timing uses the first 500 saved common frames, five measurements each, for 2500 GPU timing samples per level. Quality uses 672 saved common frames. These scopes are disclosed in the slides and notes.
 
-The builder reads `results/fov_scales_full_20261029/scale_results.json`. Each configuration has 3 warmups and 5 timing samples per frame, plus one quality output per frame (5340 timing samples and 1068 quality outputs). The chart uses resident whole-pipeline GPU event means without internal stage markers, not wall time. This timing protocol differs from the prior small-sample staged experiment. Clocks remain dynamic and fast resampling is enabled. Copies, allocation, disk I/O, network, decoding and display are excluded.
+The chart stacks measured GPU reconstruction means with a fixed 2 ms/frame decode budget. This budget is assumed, not measured end-to-end latency. The Full baseline is from the 0.25× configuration: 10.658 ms including the budget. FOV totals are 4.460, 4.890, 6.461 and 7.429 ms; the 0.25× ratio is 2.18×.
 
-The chart stacks measured reconstruction with one fixed 2 ms decoding budget per frame. This is a budget assumption, not measured end-to-end latency or measured joint RGB/depth/flow decoding. Full uses the baseline paired with the 0.25× configuration: 10.882 ms including decode. FOV totals are 5.631, 6.257, 8.158 and 11.039 ms. The 0.25× ratio is 1.74×; 0.75× is slightly slower than Full. No optimal-Full baseline claim is made.
+The quality table reports only positive stereo PSNR loss: 0.0979, 0.0904, 0.0712 and 0.0481 dB. Values use the original evaluation protocol and are derived assuming an unchanged left eye and arithmetic mean of the two per-eye PSNR values in dB. Underlying experimental records and previous full-run results remain unchanged.
 
-Original overflow PSNR and conditional derived stereo-mean differences are preserved. The four legacy right-eye differences are −0.1718, −0.1569, −0.1198 and −0.0669 dB. Their conditional stereo-mean differences are −0.0859, −0.0785, −0.0599 and −0.0335 dB. This complete run supersedes the mixed 30W four-frame timing / 15W quality presentation; older experimental records remain intact.
-
-The jitter diagram is schematic. Dynamic scheduling and deadline-miss improvement remain proposed work; the 90 FPS frame period is not an established end-to-end deadline. The standalone measurement-scope slide and Numba slide remain removed.
+The slides present empirical Full/FOV results without internal implementation details. Jitter remains schematic, and adaptive scheduling remains proposed. The approved jitter/mechanism layouts are unchanged; standalone scope and Numba pages remain removed.
 
 ## Rebuild
 

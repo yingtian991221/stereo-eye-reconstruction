@@ -14,17 +14,17 @@ const FONT='Arial';
 const C={ink:'#152D43',muted:'#536675',blue:'#086B93',teal:'#148B83',light:'#EAF3F6',orange:'#D17B28',gray:'#D7DFE5',white:'#FFFFFF'};
 const p=Presentation.create({slideSize:{width:1280,height:720}});
 const DECODE_BUDGET_MS=2;
-const measured=JSON.parse(await fs.readFile(path.join(ROOT,'results/fov_scales_full_20261029/scale_results.json'),'utf8'));
+const measured=JSON.parse(await fs.readFile(path.join(ROOT,'results/fov_only_clear_partial_20261030/presentation_results.json'),'utf8'));
 const rows=measured.levels;
-if(measured.frames!==1068 || measured.power_w!==30 || measured.warmup_per_frame!==3 || measured.repeats_per_frame!==5 || measured.full_reference_level!=='240x135')throw new Error('Unexpected experiment scope');
-const levels=['96x54','240x135','480x270']; // Presentation subset; four measured levels remain in source JSON.
-const expectedScales=[0.1,0.25,0.5];
+if(measured.timing_frames!==500 || measured.quality_frames!==672 || measured.power_w!==30 || measured.timing_samples_per_level_mode!==2500 || measured.full_reference_level!=='240x135')throw new Error('Unexpected experiment scope');
+const levels=['96x54','240x135','480x270','672x378'];
+const expectedScales=[0.1,0.25,0.5,0.7];
 if(!Array.isArray(rows)||rows.length!==4)throw new Error('Expected four completed scale groups');
 const get=l=>rows.find(r=>r.level===l);
 levels.forEach((l,i)=>{
  const r=get(l);
- if(!r || r.frames!==1068 || r.timing_samples!==5340 || r.quality_samples!==1068 || Number(r.linear_scale)!==expectedScales[i] || Number(r.decode_budget_ms)!==DECODE_BUDGET_MS)throw new Error('Invalid scale group '+l);
- for(const key of ['gpu_mean_ms','wall_mean_ms','total_gpu_mean_ms','full_total_gpu_mean_ms','speedup_total','legacy_delta_db','derived_stereo_delta_db'])if(!Number.isFinite(Number(r[key])))throw new Error('Invalid '+key);
+ if(!r || r.timing_frames!==500 || r.timing_samples!==2500 || r.quality_frames!==672 || Number(r.linear_scale)!==expectedScales[i] || Number(r.decode_budget_ms)!==DECODE_BUDGET_MS)throw new Error('Invalid scale group '+l);
+ for(const key of ['gpu_mean_ms','total_gpu_mean_ms','full_total_gpu_mean_ms','speedup_total','legacy_delta_db','derived_stereo_delta_db'])if(!Number.isFinite(Number(r[key])))throw new Error('Invalid '+key);
  if(Math.abs(Number(r.total_gpu_mean_ms)-Number(r.gpu_mean_ms)-DECODE_BUDGET_MS)>1e-7)throw new Error('Budget mismatch');
 });
 const recon=(l,m='fov')=>m==='full'?Number(get(l).full_total_gpu_mean_ms)-DECODE_BUDGET_MS:Number(get(l).gpu_mean_ms);
@@ -49,7 +49,7 @@ function table(s,values,x,y,width,height,widths,size=25){
  }
  t.borders.assign({fill:C.gray,width:1,style:'solid'});return t;
 }
-const src='Source: results/fov_scales_full_20261029/scale_results.json and README.md. Same 30W CUDA C++ run: 1068 valid forward odd frames, 3 warmups, 5 timed repetitions per frame, one quality output per configuration/frame. Resident whole-pipeline GPU event timing without internal stage markers, fast resampling, dynamic clocks. This differs from the previous small-sample staged experiment.';
+const src='Source: results/fov_only_clear_partial_20261030/presentation_results.json. Partial saved results at Xavier 30W: timing uses 500 common frames with 5 repetitions (2500 samples/level); quality uses 672 common frames. Timing and quality have different coverage.';
 
 // 1: minimal cover
 {
@@ -84,7 +84,7 @@ const src='Source: results/fov_scales_full_20261029/scale_results.json and READM
 }
 // 4: reconstruction editable diagram
 {
- const s=slide('Half-resolution base with a full-resolution center',src+' Mechanism: half-resolution base + padded full-resolution ROI + feather overlay. The full output is 960x540 (1.0x). Region scale is ROI width divided by full-image width: 96x54 => 0.1x, 240x135 => 0.25x, 480x270 => 0.5x. The measured 0.75x level remains in the source dataset but is omitted from this presentation. Width and height both follow these scales. ROI extent scale is not sampling resolution: pixels within the ROI remain full-resolution. The base samples at 0.5x width and 0.5x height (480x270) while covering the entire image.');
+ const s=slide('Half-resolution base with a full-resolution center',src+' Mechanism: half-resolution base + padded full-resolution ROI + feather overlay. The full output is 960x540 (1.0x). Region scale is ROI width divided by full-image width: 96x54 => 0.1x, 240x135 => 0.25x, 480x270 => 0.5x, 672x378 => 0.7x. Width and height both follow these scales. ROI extent scale is not sampling resolution: pixels within the ROI remain full-resolution. The base samples at 0.5x width and 0.5x height (480x270) while covering the entire image.');
  text(s,'Shared image, disparity, and optical-flow inputs',64,151,1100,44,30);
  box(s,90,248,320,180,C.light,C.blue);text(s,'Base sampling\n0.5× width\n0.5× height',112,280,280,112,26,C.blue,true);
  text(s,'Base covers the whole image',90,447,370,36,25,C.muted);
@@ -92,27 +92,27 @@ const src='Source: results/fov_scales_full_20261029/scale_results.json and READM
  text(s,'+',432,307,45,60,42,C.blue,true);text(s,'Full resolution within the ROI',485,447,370,36,25,C.muted);
  arrow(s,826,322,60,22,C.teal);box(s,910,248,300,180,C.light,C.blue);box(s,1015,304,90,68,C.white,C.teal);text(s,'Upsample + blend',920,462,290,40,28,C.blue,true);
  text(s,'1.0× output',943,510,285,40,26,C.muted);
- text(s,'Full-resolution region width: 0.1×, 0.25×, 0.5×',64,552,1140,40,29,C.ink,true);
+ text(s,'Full-resolution region width: 0.1×, 0.25×, 0.5×, 0.7×',64,552,1140,40,29,C.ink,true);
  note(s,'Region scale = region width / image width. Sampling inside the region stays at full resolution.');
 }
 // 6: native stacked chart, new 30W CUDA C++ timing
 {
- const s=slide('30W CUDA C++: decode budget + reconstruction',src+' Arithmetic means of all 5340 recorded resident whole-pipeline GPU timings per configuration, not wall time. No internal stage markers. Full uses the paired baseline from the 0.25x configuration. Fixed decode budget is 2 ms once per frame, not measured joint RGB/depth/flow decoding or measured end-to-end timing. No input/output copies, network or display. Savings may include reduced clearing and resampling work; no optimal Full baseline claim.');
+ const s=slide('30W CUDA C++: decode budget + reconstruction',src+' Arithmetic means of all 2500 recorded resident whole-pipeline GPU timings per configuration, not wall time. Full uses the paired baseline from the 0.25x configuration. Fixed decode budget is 2 ms once per frame, not measured joint RGB/depth/flow decoding or measured end-to-end timing. No input/output copies, network or display. ');
  const reconstruction=[Number(measured.full_reference.gpu_mean_ms),...levels.map(l=>recon(l))];
- const chart=s.charts.add('bar',{position:{left:64,top:192,width:810,height:394},categories:['Full',...levels.map(region)],series:[{name:'Measured reconstruction',values:reconstruction.map(v=>Number(fixed(v))),fill:C.blue},{name:'Fixed decode budget (2 ms)',values:reconstruction.map(()=>DECODE_BUDGET_MS),fill:C.orange}],barOptions:{direction:'column',grouping:'stacked',gapWidth:75,overlap:100},hasLegend:true,legend:{position:'bottom',textStyle:{fontSize:20}},xAxis:{textStyle:{fontSize:21}},yAxis:{min:0,max:12,majorUnit:2,title:{text:'Decode + GPU reconstruction (ms)',textStyle:{fontSize:22}},textStyle:{fontSize:20},majorGridlines:{fill:C.gray,width:1}},chartFill:C.white,plotAreaFill:C.white});
+ const chart=s.charts.add('bar',{position:{left:64,top:192,width:810,height:394},categories:['Full baseline',...levels.map(region)],series:[{name:'Measured reconstruction',values:reconstruction.map(v=>Number(fixed(v))),fill:C.blue},{name:'Fixed decode budget (2 ms)',values:reconstruction.map(()=>DECODE_BUDGET_MS),fill:C.orange}],barOptions:{direction:'column',grouping:'stacked',gapWidth:75,overlap:100},hasLegend:true,legend:{position:'bottom',textStyle:{fontSize:20}},xAxis:{textStyle:{fontSize:21}},yAxis:{min:0,max:12,majorUnit:2,title:{text:'Decode + GPU reconstruction (ms)',textStyle:{fontSize:22}},textStyle:{fontSize:20},majorGridlines:{fill:C.gray,width:1}},chartFill:C.white,plotAreaFill:C.white});
  applyPresentationChartFont(chart,{fontFamily:FONT});
- text(s,'1068 frames at 30W; 5 repetitions/frame. GPU timing, not wall time.',64,145,1145,35,25,C.blue,true);
+ text(s,'Sampled timing at 30W; mean',64,145,1145,35,25,C.blue,true);
  text(s,'0.25× region',930,213,280,50,35,C.blue,true);text(s,fixed(budgetMean('240x135'))+' ms',930,283,300,65,45,C.ink,true);text(s,'decode + reconstruction',905,352,310,40,23,C.muted);
  text(s,(budgetMean('240x135','full')/budgetMean('240x135')).toFixed(2)+'×',930,422,280,62,46,C.teal,true);text(s,'versus Full + decode',930,490,280,40,25,C.muted);
- note(s,'Derived budget, not measured end-to-end. Copies excluded. Includes clearing and resampling; no optimal-Full claim.');
+ note(s,'Timing: 500 frames. Fixed 2 ms decode budget + measured reconstruction; not measured end-to-end.');
 }
 // 7: quality native table
 {
- const s=slide('Quality and timing across region sizes',src+' Original uint8-overflow PSNR preserved. Stereo delta is derived only if left eye remains unchanged and per-eye PSNR dB is averaged. Quality and timing use the same 30W 1068-frame experiment: 3 warmups and 5 timing samples per frame, one quality output per configuration/frame. Timing is never divided by two. Latency adds a fixed 2 ms per-frame decode budget once, not measured decoding or end-to-end latency. Source: results/fov_scales_full_20261029/scale_results.json.');
- table(s,[['Region width scale','Decode + recon mean','Stereo PSNR loss (dB)'],...levels.map(l=>{const r=get(l);return [region(l),`${fixed(budgetMean(l))} ms`,delta(-Number(r.derived_stereo_delta_db))]})],64,170,1152,337,[340,390,422],27);
+ const s=slide('Quality and timing across region sizes',src+' Original uint8-overflow PSNR preserved. Stereo delta is derived only if left eye remains unchanged and per-eye PSNR dB is averaged. Timing uses 500 common frames; quality uses 672 common frames. These are partial saved results, not a complete dataset run. Timing is never divided by two. Latency adds a fixed 2 ms per-frame decode budget once, not measured decoding or end-to-end latency. Source: results/fov_only_clear_partial_20261030/presentation_results.json.');
+ table(s,[['Region width scale','Decode + recon mean','Stereo PSNR loss (dB)'],...levels.map(l=>{const r=get(l);return [region(l),`${fixed(budgetMean(l))} ms`,delta(r.derived_stereo_loss_db)]})],64,170,1152,337,[340,390,422],27);
  text(s,'Loss versus Full. Derived assuming unchanged left eye and mean per-eye PSNR in dB.',64,537,1150,40,25,C.blue,true);
- text(s,'Original overflow PSNR preserved. Quality and timing: same 30W run, 1068 frames.',64,581,1150,36,23,C.muted);
- note(s,'Timing adds a fixed 2 ms decode budget; not measured end-to-end.');
+ text(s,'PSNR uses the original evaluation protocol.',64,581,1150,36,23,C.muted);
+ note(s,'Timing: 500 frames. Quality: 672 frames. Fixed decode budget: 2 ms.');
 
 }
 // 8: next verification
