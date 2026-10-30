@@ -1,0 +1,19 @@
+{
+  "frames": [
+    "driving_15_300_0039.pir",
+    "driving_15_800_0039.pir",
+    "driving_35_300_0039.pir",
+    "driving_35_800_0039.pir"
+  ],
+  "levels": [
+    "80x46",
+    "160x90",
+    "320x180",
+    "480x270",
+    "640x360"
+  ],
+  "samples_per_group": 400,
+  "groups": 60,
+  "max_partition_error_ms": 9.53799998981708e-07,
+  "statistic": "arithmetic mean"
+}

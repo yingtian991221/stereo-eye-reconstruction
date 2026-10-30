@@ -1,0 +1,11 @@
+2026-10-29T20:08:06-07:00
+NV Power Mode: MODE_30W_4CORE
+5
+NVPM ERROR: Error opening /sys/kernel/nvpmodel_emc_cap/emc_iso_cap: 13
+NVPM ERROR: failed to read PARAM EMC: ARG MAX_FREQ: PATH /sys/kernel/nvpmodel_emc_cap/emc_iso_cap
+pmode:00050-3
+1804800
+905250000
+nvhost_podgov
+bed4124d40a2ceb3f9f241123a2f58ffdcf591f3cd219aa4b0374c9137f1c62e  /home/yingtian/stereo-cu-breakdown-20261029/profile_stages
+60dca726e7872f8945c85550d96537d522e599464b9ed697517539944571d59c  /home/yingtian/stereo-cu-breakdown-20261029/manifest.txt

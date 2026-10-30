@@ -8,6 +8,7 @@ dist/
 data/
 xavier_sample/
 results/xavier/
+results/cu_breakdown_*/raw/
 results/fov_levels_*/raw/
 results/fov_levels_*/timings.csv
 results/fov_levels_*/quality.csv

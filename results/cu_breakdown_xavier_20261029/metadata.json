@@ -1,0 +1,12 @@
+{
+  "compile": "nvcc -O3 -std=c++14 --fmad=false -gencode arch=compute_72,code=sm_72 src/profile_stages.cu -o profile_stages",
+  "warmup": 10,
+  "repeats": 100,
+  "frame": 39,
+  "power_mode": 5,
+  "fast_resample": true,
+  "baseline_commit": "c4b4d91",
+  "self_test": "Passed on Xavier before timing run",
+  "remote_directory": "/home/yingtian/stereo-cu-breakdown-20261029",
+  "inputs_and_program_sources_hash_verified": true
+}
