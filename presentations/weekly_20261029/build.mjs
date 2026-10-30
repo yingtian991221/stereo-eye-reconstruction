@@ -73,12 +73,12 @@ const src='Source: results/fov_levels_xavier_full_20261027/README.md; overview.c
 // 3: mechanism and status
 {
  const s=slide('Adapt the full-resolution region to available time','Proposed adaptive mechanism, not implemented/validated. After inputs are ready, more remaining reconstruction time allows a larger full-resolution region; less time calls for a smaller region. The half-resolution base still covers the full image. Region sizes in this schematic are illustrative, not quantitative. Current implementation covers a fixed-center FOV sweep and latency profiles.');
- text(s,'More time',64,233,350,58,39,C.blue,true);arrow(s,340,248,140,25,C.blue);
- box(s,535,180,650,155,C.light,C.gray);box(s,670,200,380,115,C.white,C.blue);
- text(s,'Larger full-resolution region',646,350,555,45,29,C.blue,true);
- text(s,'Less time',64,446,350,58,39,C.teal,true);arrow(s,340,461,140,25,C.teal);
- box(s,535,405,650,155,C.light,C.gray);box(s,805,452,110,62,C.white,C.teal);
- text(s,'Smaller full-resolution region',625,575,580,40,29,C.teal,true);
+ text(s,'More time',80,245,300,58,39,C.blue,true);arrow(s,370,263,145,25,C.blue);
+ box(s,700,159,360,202.5,C.light,C.gray);box(s,754,189.375,252,141.75,C.white,C.blue);
+ text(s,'Larger full-resolution region',90,323,530,40,28,C.blue,true);
+ text(s,'Less time',80,473,300,58,39,C.teal,true);arrow(s,370,491,145,25,C.teal);
+ box(s,700,405,360,202.5,C.light,C.gray);box(s,826,475.875,108,60.75,C.white,C.teal);
+ text(s,'Smaller full-resolution region',90,551,530,40,28,C.teal,true);
  note(s,'Proposed adaptation. Fixed-center levels are measured; scheduling and deadline-miss reduction remain unverified.');
 }
 // 4: reconstruction editable diagram
@@ -93,14 +93,6 @@ const src='Source: results/fov_levels_xavier_full_20261027/README.md; overview.c
  text(s,'960 × 540 output',943,510,285,40,26,C.muted);
  text(s,'Full-resolution region: 0.7%, 2.8%, 11.1%, 25.0%, 44.4% of image',64,552,1140,40,29,C.ink,true);
  note(s,'Region % means image-area coverage; base sampling is separate. Fixed center, 3 px halo; no eye tracking.');
-}
-// 5: distinguish timing and quality cohorts
-{
- const s=slide('Timing and quality use separate measurement sets',src+' Timing source: results/cu_breakdown_xavier_20261029/README.md and results/fov_decode_budget_2ms_20261029/summary.csv. Timing: 30W 4CORE mode5, unlocked clocks, four driving workloads each frame39, 10 warmups and 100 timed repetitions per path. Staged CUDA-event GPU timeline, not wall time; events can include launch gaps. Quality: previous 15W evaluation, 1068 valid forward odd frames, one quality output per configuration and frame. These are separate experiments, not jointly measured quality-latency pairs.');
- table(s,[['','Latest timing','Existing quality'],['Implementation','CUDA C++','CUDA C++'],['Xavier power mode','30W 4CORE, unlocked','15W Desktop, unlocked'],['Coverage','4 workloads × frame 39','1068 forward odd frames'],['Sampling','10 warmups + 100 runs/path','1 output/config/frame'],['Reported quantity','Staged GPU timeline mean','Original overflow PSNR']],64,172,1152,348,[260,446,446],25);
- text(s,'Timing excludes input/output copies, allocation, disk I/O, network, decoding, and display.',64,545,1150,38,25,C.ink);
- text(s,'Slides 6–7 add one fixed 2 ms/frame decode budget; this is not measured end-to-end.',64,588,1150,38,25,C.blue,true);
- note(s,'Timing and quality are from separate experiments. No new quality equivalence or jointly measured trade-off is claimed.');
 }
 // 6: native stacked chart, new 30W CUDA C++ timing
 {
@@ -123,7 +115,7 @@ const src='Source: results/fov_levels_xavier_full_20261027/README.md; overview.c
 }
 // 8: next verification
 {
- const s=slide('Next: measure deadline behavior under jitter','Proposed future work; no measured jitter trace or deadline-miss reduction exists in the current experiment. Slides 6–7 add a fixed 2 ms decode budget to local reconstruction means. Other timing values are local reconstruction measurements. None are measured end-to-end VR results.');
+ const s=slide('Next: measure deadline behavior under jitter','Proposed future work; no measured jitter trace or deadline-miss reduction exists in the current experiment. Slides 5–6 add a fixed 2 ms decode budget to local reconstruction means. Other timing values are local reconstruction measurements. None are measured end-to-end VR results.');
  const ys=[179,315,451];
  const titles=['Record the actual per-frame budget','Implement budget-based ROI selection','Compare fixed and adaptive policies on the same trace'];
  const bodies=['Log arrival, decode completion, and display deadline. Reserve display time and a margin.','Build a percentile-based profile. Define a fallback when no level fits the budget.','Report deadline-miss rate, tail latency, and quality. Repeat runs to check stability.'];
@@ -137,5 +129,5 @@ for(let i=0;i<p.slides.items.length;i++){
 }
 const candidate=path.join(BUILD,'candidate.pptx');await(await PresentationFile.exportPptx(p)).save(candidate);
 const FINAL=path.join(OUT,process.env.PPTX_NAME || 'weekly_20261029_english_final.pptx');
-const result=await finalizePresentation({workspaceDir:ROOT,candidatePath:candidate,finalPath:FINAL,pythonExecutable:RUNTIME+'/python/python.exe',integrityValidatorPath:SKILL+'/container_tools/inspect_presentation_package_integrity.py',layoutValidatorPath:SKILL+'/container_tools/inspect_presentation_layout_geometry.py',layoutArgs:['--expected-slide-size-emu','12192000,6858000','--validate-bullet-geometry','--validate-heading-fit','--require-native-table-slide','5','--require-native-table-slide','7'],explicitTotalSlideCount:8,requiredNativeTableOwnerSlides:[5,7],requiredNativeChartOwnerSlides:[6],materializeLiteralChartWorkbooks:true,fontPolicy:{basis:'design',families:[FONT]},verifyArtifactToolImport:true,receiptPath:path.join(BUILD,path.basename(FINAL)+'.validation.json')});
+const result=await finalizePresentation({workspaceDir:ROOT,candidatePath:candidate,finalPath:FINAL,pythonExecutable:RUNTIME+'/python/python.exe',integrityValidatorPath:SKILL+'/container_tools/inspect_presentation_package_integrity.py',layoutValidatorPath:SKILL+'/container_tools/inspect_presentation_layout_geometry.py',layoutArgs:['--expected-slide-size-emu','12192000,6858000','--validate-bullet-geometry','--validate-heading-fit','--require-native-table-slide','6'],explicitTotalSlideCount:7,requiredNativeTableOwnerSlides:[6],requiredNativeChartOwnerSlides:[5],materializeLiteralChartWorkbooks:true,fontPolicy:{basis:'design',families:[FONT]},verifyArtifactToolImport:true,receiptPath:path.join(BUILD,path.basename(FINAL)+'.validation.json')});
 console.log(JSON.stringify(result,null,2));
