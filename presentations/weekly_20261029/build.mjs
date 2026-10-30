@@ -83,16 +83,16 @@ const src='Source: results/fov_levels_xavier_full_20261027/README.md; overview.c
 }
 // 4: reconstruction editable diagram
 {
- const s=slide('Half-resolution base with a full-resolution center',src+' Mechanism: half-resolution base + padded full-resolution ROI + feather overlay. Region percentages are spatial coverage of a 960x540 image: 80x46=0.7098765%, 160x90=2.7777778%, 320x180=11.1111111%, 480x270=25%, 640x360=44.4444444%. The base samples at 50% width and 50% height, giving 25% as many pixels (480x270), while covering the entire image. Region coverage and sampling resolution are different quantities.');
+ const s=slide('Half-resolution base with a full-resolution center',src+' Mechanism: half-resolution base + padded full-resolution ROI + feather overlay. The full output is 960x540 (1.0x). Region scale is ROI width divided by full-image width: 80x46 => 0.083333x, 160x90 => 0.166667x, 320x180 => 0.333333x, 480x270 => 0.5x, 640x360 => 0.666667x. Height approximately follows the same scale; the smallest ROI uses height46 for even alignment, instead of45. ROI extent scale is not sampling resolution: pixels within the ROI remain full-resolution. The base samples at 0.5x width and 0.5x height (480x270) while covering the entire image.');
  text(s,'Shared image, disparity, and optical-flow inputs',64,151,1100,44,30);
- box(s,90,248,320,180,C.light,C.blue);text(s,'Base sampling\n50% W × 50% H\n(25% of pixels)',112,280,280,112,26,C.blue,true);
+ box(s,90,248,320,180,C.light,C.blue);text(s,'Base sampling\n0.5× width\n0.5× height',112,280,280,112,26,C.blue,true);
  text(s,'Base covers the whole image',90,447,370,36,25,C.muted);
  box(s,485,248,320,180,C.white,C.gray);box(s,590,304,110,68,C.light,C.teal);text(s,'ROI',588,326,150,35,24,C.teal,true);
  text(s,'+',432,307,45,60,42,C.blue,true);text(s,'Full resolution within the ROI',485,447,370,36,25,C.muted);
  arrow(s,826,322,60,22,C.teal);box(s,910,248,300,180,C.light,C.blue);box(s,1015,304,90,68,C.white,C.teal);text(s,'Upsample + blend',920,462,290,40,28,C.blue,true);
- text(s,'960 × 540 output',943,510,285,40,26,C.muted);
- text(s,'Full-resolution region: 0.7%, 2.8%, 11.1%, 25.0%, 44.4% of image',64,552,1140,40,29,C.ink,true);
- note(s,'Region % means image-area coverage; base sampling is separate. Fixed center, 3 px halo; no eye tracking.');
+ text(s,'1.0× output',943,510,285,40,26,C.muted);
+ text(s,'Full-resolution region width: 0.08×, 0.17×, 0.33×, 0.50×, 0.67×',64,552,1140,40,29,C.ink,true);
+ note(s,'Region scale = region width / image width. Sampling inside the region stays at full resolution.');
 }
 // 6: native stacked chart, new 30W CUDA C++ timing
 {
