@@ -17,15 +17,18 @@ const csv=await fs.readFile(path.join(ROOT,'results/fov_levels_xavier_full_20261
 const lines=csv.trim().split(/\r?\n/).map(x=>x.split(','));const data=lines.slice(1).map(row=>Object.fromEntries(lines[0].map((k,i)=>[k,row[i]])));
 const levels=['80x46','160x90','320x180','480x270','640x360'];
 const get=(l,t='resident',m='fov')=>data.find(r=>r.level===l&&r.timing===t&&r.mode===m);
-const means=JSON.parse(await fs.readFile(path.join(OUT,'mean_timings.json'),'utf8'));
-const mean=(l,t='resident',m='fov')=>{
- const row=means.cuda.find(r=>r.level===l&&r.timing===t&&r.mode===m);
- if(!row || row.samples!==5340)throw new Error('Incomplete mean timing group');
- return row.wall_mean_ms;
-};
 const DECODE_BUDGET_MS=2; // Fixed per-frame budget, added once; not measured joint decoding.
-const budgetMean=(l,t='resident',m='fov')=>DECODE_BUDGET_MS+mean(l,t,m);
-const region=l=>(means.cuda.find(r=>r.level===l).region_percent).toFixed(1)+'%';
+const derivedCsv=await fs.readFile(path.join(ROOT,'results/fov_decode_budget_2ms_20261029/summary.csv'),'utf8');
+const csvRows=derivedCsv.trim().split(/\r?\n/).map(row=>(row.match(/(?:"[^"]*"|[^,])+/g)||[]).map(v=>v.replace(/^"|"$/g,'')));
+const derived=csvRows.slice(1).map(row=>Object.fromEntries(csvRows[0].map((k,i)=>[k,row[i]])));
+const timingRow=(l,m='fov')=>{
+ const rows=derived.filter(r=>r.power_w==='30'&&r.level===l&&r.mode===m&&r.timing==='resident'&&r.basis==='GPU timeline'&&r.variant==='staged');
+ if(rows.length!==1 || Number(rows[0].fixed_decode_budget_ms)!==DECODE_BUDGET_MS)throw new Error('Invalid CUDA 30W derived group');
+ return rows[0];
+};
+const recon=(l,m='fov')=>Number(timingRow(l,m).reconstruction_mean_ms);
+const budgetMean=(l,m='fov')=>recon(l,m)+DECODE_BUDGET_MS;
+const region=l=>Number(timingRow(l).region_percent).toFixed(1)+'%';
 const fixed=n=>Number(n).toFixed(3), delta=n=>Number(n).toFixed(4);
 function text(s,txt,x,y,w,h,size=27,color=C.ink,bold=false){
  const sh=s.shapes.add({geometry:'textbox',position:{left:x,top:y,width:w,height:h},fill:'none',line:{fill:'none',width:0}});
@@ -91,56 +94,34 @@ const src='Source: results/fov_levels_xavier_full_20261027/README.md; overview.c
  text(s,'Full-resolution region: 0.7%, 2.8%, 11.1%, 25.0%, 44.4% of image',64,552,1140,40,29,C.ink,true);
  note(s,'Region % means image-area coverage; base sampling is separate. Fixed center, 3 px halo; no eye tracking.');
 }
-// 5: coverage and timing
+// 5: distinguish timing and quality cohorts
 {
- const s=slide('Coverage and measurement scope',src+' Measured timing excludes decoding. Slides 6 and 7 add one fixed 2 ms decoding budget per frame to measured means; derived budget totals are not measured end-to-end latency. No joint RGB, depth and flow decoding measurement is claimed.');
- table(s,[['Forward sequence','Frames','Right-eye frame IDs'],['15 mm / 300','147','Odd frames 7–299'],['15 mm / 800','387','Odd frames 7–779'],['35 mm / 300','147','Odd frames 7–299'],['35 mm / 800','387','Odd frames 7–779']],64,167,660,330,[240,140,280],24);
- text(s,'1068 frames',796,172,360,70,48,C.blue,true);
- text(s,'Xavier 15W Desktop\nCUDA 11.4, unlocked clocks\n3 warmups + 5 timed runs/frame\nOne quality output/config/frame',796,268,400,192,26);
- text(s,'Resident: GPU-resident inputs, reconstruction, upsampling, and blending\nStream: also includes input upload and output download\nSlides 6–7 add a fixed 2 ms/frame decode budget; not measured end-to-end.',64,515,1135,99,24,C.ink);
- note(s,'Excludes backward scenes, even frames, and unsupported tail frames. Timing excludes I/O, allocation, network, decoding, and display.');
+ const s=slide('Timing and quality use separate measurement sets',src+' Timing source: results/cu_breakdown_xavier_20261029/README.md and results/fov_decode_budget_2ms_20261029/summary.csv. Timing: 30W 4CORE mode5, unlocked clocks, four driving workloads each frame39, 10 warmups and 100 timed repetitions per path. Staged CUDA-event GPU timeline, not wall time; events can include launch gaps. Quality: previous 15W evaluation, 1068 valid forward odd frames, one quality output per configuration and frame. These are separate experiments, not jointly measured quality-latency pairs.');
+ table(s,[['','Latest timing','Existing quality'],['Implementation','CUDA C++','CUDA C++'],['Xavier power mode','30W 4CORE, unlocked','15W Desktop, unlocked'],['Coverage','4 workloads × frame 39','1068 forward odd frames'],['Sampling','10 warmups + 100 runs/path','1 output/config/frame'],['Reported quantity','Staged GPU timeline mean','Original overflow PSNR']],64,172,1152,348,[260,446,446],25);
+ text(s,'Timing excludes input/output copies, allocation, disk I/O, network, decoding, and display.',64,545,1150,38,25,C.ink);
+ text(s,'Slides 6–7 add one fixed 2 ms/frame decode budget; this is not measured end-to-end.',64,588,1150,38,25,C.blue,true);
+ note(s,'Timing and quality are from separate experiments. No new quality equivalence or jointly measured trade-off is claimed.');
 }
-// 6: native chart
+// 6: native stacked chart, new 30W CUDA C++ timing
 {
- const s=slide('Decode budget + reconstruction across FOV levels',src+' Arithmetic means of all 5340 timing samples in each level/timing/mode group, computed by compute_means.py into mean_timings.json. No sample trimming. Full baseline measured separately per level. Fast resample enabled. Each value covers all 1068 supported frames. Adds a fixed 2 ms decode budget once per frame. Speedup is (2 + mean(full resident))/(2 + mean(FOV resident)) at the same region level. This is a derived budget, not measured end-to-end timing or measured joint RGB/depth/flow decoding. See results/fov_decode_budget_2ms_20261029/README.md and summary.csv. Region labels are image-area coverage, not sampling resolution.');
- const chart=s.charts.add('bar',{position:{left:64,top:176,width:810,height:410},categories:levels.map(region),series:[{name:'FOV resident + decode',values:levels.map(l=>Number(fixed(budgetMean(l)))),fill:C.blue},{name:'FOV stream + decode',values:levels.map(l=>Number(fixed(budgetMean(l,'stream')))),fill:C.orange},{name:'Full resident + decode',values:levels.map(l=>Number(fixed(budgetMean(l,'resident','full')))),fill:C.muted}],barOptions:{direction:'column',grouping:'clustered',gapWidth:75,overlap:0},hasLegend:true,legend:{position:'bottom',textStyle:{fontSize:18}},xAxis:{textStyle:{fontSize:21}},yAxis:{min:0,max:16,majorUnit:2,title:{text:'Decode + recon mean (ms)',textStyle:{fontSize:22}},textStyle:{fontSize:20},majorGridlines:{fill:C.gray,width:1}},chartFill:C.white,plotAreaFill:C.white});
+ const s=slide('30W CUDA C++: decode budget + reconstruction','Sources: results/cu_breakdown_xavier_20261029/README.md; results/fov_decode_budget_2ms_20261029/summary.csv. Four workloads, each frame39; 10 warmups and 100 timed runs per path. Arithmetic means of staged resident GPU timelines, not wall time. Full uses the paired baseline from the 2.8% configuration. Fixed decode budget is 2 ms once per frame, not measured joint RGB/depth/flow decoding or measured end-to-end timing. No input/output copies, network or display. Fast resampling enabled. Clearing dominates Full and accounts for about 58% of the Full-to-2.8% reconstruction saving, so the gain cannot be attributed entirely to reduced reprojection computation. No claim of an optimal Full baseline.');
+ const reconstruction=[recon('160x90','full'),...levels.map(l=>recon(l))];
+ const chart=s.charts.add('bar',{position:{left:64,top:192,width:810,height:394},categories:['Full',...levels.map(region)],series:[{name:'Measured reconstruction',values:reconstruction.map(v=>Number(fixed(v))),fill:C.blue},{name:'Fixed decode budget (2 ms)',values:reconstruction.map(()=>DECODE_BUDGET_MS),fill:C.orange}],barOptions:{direction:'column',grouping:'stacked',gapWidth:75,overlap:100},hasLegend:true,legend:{position:'bottom',textStyle:{fontSize:20}},xAxis:{textStyle:{fontSize:21}},yAxis:{min:0,max:12,majorUnit:2,title:{text:'Decode + GPU reconstruction (ms)',textStyle:{fontSize:22}},textStyle:{fontSize:20},majorGridlines:{fill:C.gray,width:1}},chartFill:C.white,plotAreaFill:C.white});
  applyPresentationChartFont(chart,{fontFamily:FONT});
- text(s,'2.8% region',930,202,280,50,35,C.blue,true);text(s,fixed(budgetMean('160x90'))+' ms',930,275,300,65,45,C.ink,true);text(s,'decode + resident',930,347,280,40,25,C.muted);
- text(s,(budgetMean('160x90','resident','full')/budgetMean('160x90')).toFixed(2)+'×',930,417,280,62,46,C.teal,true);text(s,'versus full + decode',930,485,280,40,25,C.muted);
- text(s,'Fixed decode budget: 2 ms/frame + measured reconstruction; stream also includes copies.',64,145,1145,31,23,C.blue,true);
- note(s,'Derived budget, not measured end-to-end. Fast resampling enabled; gains also include upsampling changes. No optimal-baseline claim.');
+ text(s,'4 workloads × frame 39; 100 repetitions/path. GPU timeline, not wall time.',64,145,1145,35,25,C.blue,true);
+ text(s,'2.8% region',930,213,280,50,35,C.blue,true);text(s,fixed(budgetMean('160x90'))+' ms',930,283,300,65,45,C.ink,true);text(s,'decode + reconstruction',905,352,310,40,23,C.muted);
+ text(s,(budgetMean('160x90','full')/budgetMean('160x90')).toFixed(2)+'×',930,422,280,62,46,C.teal,true);text(s,'versus Full + decode',930,490,280,40,25,C.muted);
+ note(s,'Derived budget, not measured end-to-end. Copies excluded. Savings include reduced clearing work; no optimal-Full claim.');
 }
 // 7: quality native table
 {
- const s=slide('Quality–latency trade-off',src+' Original uint8-overflow PSNR preserved. Stereo delta is derived only if left eye remains unchanged and per-eye PSNR dB is averaged. Timing is never divided by two. Latency adds a fixed 2 ms per-frame decode budget once, not measured decoding or end-to-end latency. Source: results/fov_decode_budget_2ms_20261029/summary.csv.');
+ const s=slide('Quality and timing across region sizes',src+' Original uint8-overflow PSNR preserved. Stereo delta is derived only if left eye remains unchanged and per-eye PSNR dB is averaged. Quality: 15W, 1068 frames. Timing: separate 30W four-frame CUDA staged GPU experiment; not joint measurements and no new quality equivalence verified. Timing is never divided by two. Latency adds a fixed 2 ms per-frame decode budget once, not measured decoding or end-to-end latency. Source: results/fov_decode_budget_2ms_20261029/summary.csv.');
  table(s,[['Region (% of image)','Decode + recon mean','Right-eye ΔPSNR','Stereo mean ΔPSNR*'],...levels.map(l=>{const r=get(l);return [region(l),`${fixed(budgetMean(l))} ms`,`${delta(r.legacy_delta_vs_full_db)} dB`,`${delta(Number(r.legacy_delta_vs_full_db)/2)} dB`]})],64,170,1152,337,[265,275,286,326],24);
  text(s,'* Unchanged left eye, mean per-eye PSNR in dB: stereo difference = right-eye difference / 2',64,537,1150,40,25,C.blue,true);
  text(s,'ΔPSNR = FOV − full, using original overflow PSNR. Standard PSNR can show a different trend.',64,581,1150,36,23,C.muted);
- note(s,'Fixed 2 ms decode budget + resident reconstruction. Stereo values derived; non-atomic writes remain. No SSIM/LPIPS.');
+ note(s,'Timing: 30W, 4 frames + fixed 2 ms decode. Quality: 15W, 1068 frames. Separate experiments, not jointly measured.');
 }
-// 8: Numba compatible proof
-{
- const n=JSON.parse(await fs.readFile(path.join(ROOT,'results/numba_xavier_20261029/mode7_15w/result.json'),'utf8'));
- if (process.env.NUMBA30_RESULT) {
- const thirty=JSON.parse(await fs.readFile(path.resolve(ROOT,process.env.NUMBA30_RESULT),'utf8'));
- const keys=Object.keys(n.workloads);
- if(keys.length!==4 || thirty.frame!==39 || thirty.repeats!==100 || !keys.every(k=>thirty.workloads[k])) throw new Error('Unmatched 30W coverage');
- const s=slide('Numba latency at 15W and 30W','Sources: results/numba_xavier_20261029/mode7_15w/result.json and '+process.env.NUMBA30_RESULT+'. Arithmetic means from mean_timings.json of all 100 samples per method, four workloads, frame39 only. 15W was measured before 30W. No confidence intervals. Some startup drift remains. Same Numba implementation and inputs. Preallocated resident timing includes launch/synchronization; excludes JIT, allocation, transfers, I/O. Power modes: 15W Desktop mode7 and 30W 4CORE mode5. Dynamic clocks, same four CPU cores. The 30W mode raises GPU/EMC limits but lowers the CPU maximum. Original generate_right includes allocation/transfer and startup drift; it is not the resident path shown. Numba upsampling differs from optimized CUDA C++.');
- const rows=keys.map(k=>{const a=means.numba.mode7_15w[k],b=means.numba.mode5_30w[k];return[k.replace('driving_',''),fixed(a.full),fixed(b.full),fixed(a['160x90']),fixed(b['160x90'])];});
- table(s,[['Sequence','Full 15W','Full 30W','ROI 15W','ROI 30W'],...rows],64,180,1152,285,[232,230,230,230,230],26);
- text(s,'Frame 39 per sequence, 100 repeats. Reconstruction means (ms); no decode. Region = 2.8%.',64,495,1152,40,26,C.blue,true);
- text(s,'30W 4-core mode raises the GPU cap but lowers the CPU cap versus 15W Desktop.\nDynamic clocks. Numba and optimized C++ use different upsampling implementations.',64,550,1152,72,25);
- note(s,'Small-sample power-mode comparison, not a complete-dataset study or a language-only comparison.');
- } else {
- const s=slide('Numba runs on Xavier: a small-sample check','Source: results/numba_xavier_20261029/mode7_15w/result.json, environment.txt, run.log. Arithmetic means from mean_timings.json of 100 timing samples per method, four workloads, frame39 only. No confidence intervals. Numba0.58.1/Python3.8/CUDA11.4. Original source-function calls include allocations/transfers/debug copies and show warmup drift; not directly comparable to resident timing.');
- const rows=Object.keys(n.workloads).map(k=>{const r=means.numba.mode7_15w[k];return[k.replace('driving_',''),fixed(r.full),fixed(r['160x90']),fixed(r['320x180'])];});
- table(s,[['Sequence','Full (ms)','Region 2.8%','Region 11.1%'],...rows],64,180,1152,285,[280,280,296,296],26);
- text(s,'15W. Frame 39 per sequence, 100 repeats. Resident reconstruction means; no decode.',64,495,1152,40,26,C.blue,true);
- text(s,'Numba 0.58.1 + Python 3.8: real GPU JIT and execution passed.\nIts upsampler differs from optimized CUDA C++; this is not a language-only comparison.',64,550,1152,72,25);
- note(s,'Original generate_right also runs with allocation/transfer and startup drift. See the companion deck for 30W.');
- }
-}
-// 9: next verification
+// 8: next verification
 {
  const s=slide('Next: measure deadline behavior under jitter','Proposed future work; no measured jitter trace or deadline-miss reduction exists in the current experiment. Slides 6–7 add a fixed 2 ms decode budget to local reconstruction means. Other timing values are local reconstruction measurements. None are measured end-to-end VR results.');
  const ys=[179,315,451];
@@ -156,5 +137,5 @@ for(let i=0;i<p.slides.items.length;i++){
 }
 const candidate=path.join(BUILD,'candidate.pptx');await(await PresentationFile.exportPptx(p)).save(candidate);
 const FINAL=path.join(OUT,process.env.PPTX_NAME || 'weekly_20261029_english_final.pptx');
-const result=await finalizePresentation({workspaceDir:ROOT,candidatePath:candidate,finalPath:FINAL,pythonExecutable:RUNTIME+'/python/python.exe',integrityValidatorPath:SKILL+'/container_tools/inspect_presentation_package_integrity.py',layoutValidatorPath:SKILL+'/container_tools/inspect_presentation_layout_geometry.py',layoutArgs:['--expected-slide-size-emu','12192000,6858000','--validate-bullet-geometry','--validate-heading-fit','--require-native-table-slide','5','--require-native-table-slide','7','--require-native-table-slide','8'],explicitTotalSlideCount:9,requiredNativeTableOwnerSlides:[5,7,8],requiredNativeChartOwnerSlides:[6],materializeLiteralChartWorkbooks:true,fontPolicy:{basis:'design',families:[FONT]},verifyArtifactToolImport:true,receiptPath:path.join(BUILD,path.basename(FINAL)+'.validation.json')});
+const result=await finalizePresentation({workspaceDir:ROOT,candidatePath:candidate,finalPath:FINAL,pythonExecutable:RUNTIME+'/python/python.exe',integrityValidatorPath:SKILL+'/container_tools/inspect_presentation_package_integrity.py',layoutValidatorPath:SKILL+'/container_tools/inspect_presentation_layout_geometry.py',layoutArgs:['--expected-slide-size-emu','12192000,6858000','--validate-bullet-geometry','--validate-heading-fit','--require-native-table-slide','5','--require-native-table-slide','7'],explicitTotalSlideCount:8,requiredNativeTableOwnerSlides:[5,7],requiredNativeChartOwnerSlides:[6],materializeLiteralChartWorkbooks:true,fontPolicy:{basis:'design',families:[FONT]},verifyArtifactToolImport:true,receiptPath:path.join(BUILD,path.basename(FINAL)+'.validation.json')});
 console.log(JSON.stringify(result,null,2));

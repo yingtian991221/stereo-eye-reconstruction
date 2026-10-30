@@ -56,7 +56,7 @@ def main():
     choices=[('Full',select(30,'160x90','full'))]+[(f'{select(30,l)["region_percent"]:.1f}%',select(30,l)) for l in LEVELS]
     for label,r in choices:
         text+=f'| {label} | {r["reconstruction_mean_ms"]:.3f} | 2.000 | {r["decode_plus_reconstruction_ms"]:.3f} |\n'
-    text+='\n## CUDA C++ 15W：完整有效1068帧\n\n表中重建为resident墙钟均值。PPT主结果仍使用这组完整数据，不能与上表30W小样本混为同一实验。\n\n| 区域 | 重建均值(ms) | 解码+重建(ms) | 含输入输出拷贝再加解码预算(ms) |\n| --- | ---: | ---: | ---: |\n'
+    text+='\n## CUDA C++ 15W：完整有效1068帧\n\n表中重建为resident墙钟均值，保留作完整覆盖的历史对照。当前PPT时间已改用上表30W小样本；质量仍来自15W完整1068帧，两组不能视为同一轮联合质量/时间测量。\n\n| 区域 | 重建均值(ms) | 解码+重建(ms) | 含输入输出拷贝再加解码预算(ms) |\n| --- | ---: | ---: | ---: |\n'
     for label,level,mode in [('Full','160x90','full')]+[(f'{select(15,l,basis="wall")["region_percent"]:.1f}%',l,'fov') for l in LEVELS]:
         r=select(15,level,mode,basis='wall');s=select(15,level,mode,basis='wall',timing='stream')
         text+=f'| {label} | {r["reconstruction_mean_ms"]:.3f} | {r["decode_plus_reconstruction_ms"]:.3f} | {s["decode_plus_reconstruction_ms"]:.3f} |\n'
