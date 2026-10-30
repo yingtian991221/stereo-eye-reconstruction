@@ -43,6 +43,10 @@ PIRATE_BIN=./build/pirate_bench bash jetson_cuda/run_matrix.sh \
 
 ## FOV level 的质量与时间联合测试
 
+**最新四档：[0.1× / 0.25× / 0.5× / 0.75× 全量实测](results/fov_scales_full_20261029/README.md)**。中心区域对应96×54、240×135、480×270、720×405；30W下完整覆盖1068有效帧，时间和质量来自同一轮，统一报告均值，另加每帧固定2ms解码预算。0.75×在当前实现中没有速度收益，原始记录和旧档位结果均保留。
+
+重跑使用 `evaluate_levels.py --levels 96x54,240x135,480x270,720x405 --timing resident --batch-size 32 --warmup 3 --repeats 5 --quality-runs 1 --fast-resample`（另提供 `--binary`、`--manifest`、新 `--out`）。汇总：`python jetson_cuda/report_scale_sweep.py NEW_OUT --plot`。下方旧五档命令用于历史实验对照；重跑旧档需显式传入旧 `--levels`。
+
 **当前汇报口径：[固定2ms解码预算 + 各档FOV重建均值](results/fov_decode_budget_2ms_20261029/README.md)**。包含30W小样本与15W完整有效范围，分别列示；推导值不覆盖原始测量。
 
 [Depth / flow 灰度内容与16-bit打包解码测试](results/map_decode_xavier_20261029/README.md)：相同120帧片段下，低码率depth/u/v解码均值约2.36ms，RGB对照约2.42ms（各轮去首10帧）；同时报告有损数值误差和高码率无损打包控制，未接入重建流水线。

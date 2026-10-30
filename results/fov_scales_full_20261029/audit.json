@@ -1,0 +1,40 @@
+{
+  "frames": 1068,
+  "workload_frames": {
+    "driving_15_300": 147,
+    "driving_15_800": 387,
+    "driving_35_300": 147,
+    "driving_35_800": 387
+  },
+  "quality_rows": 64080,
+  "timing_rows": 64080,
+  "exact_per_frame_per_config_coverage": true,
+  "quality_regions": [
+    "whole",
+    "fixed_center",
+    "fixed_periphery",
+    "level_roi",
+    "level_periphery"
+  ],
+  "levels": [
+    "96x54",
+    "240x135",
+    "480x270",
+    "720x405"
+  ],
+  "iterations": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "source_hashes_verified": {
+    "evaluate_levels.py": "5679f9052aaa06bebc36ae783ac218cb9c4c48bd88973e31433131572ffbda30",
+    "pirate_bench.cu": "4de72c5fd5253f7c5edff469630c80e6785f6002dc65873541032cc59416e1b1"
+  },
+  "statistic": "arithmetic mean",
+  "decode_budget_ms": 2.0,
+  "power": "30W 4CORE",
+  "timing": "resident"
+}

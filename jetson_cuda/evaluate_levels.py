@@ -74,7 +74,7 @@ def main():
     parser.add_argument('--binary', type=Path, required=True)
     parser.add_argument('--manifest', type=Path, required=True)
     parser.add_argument('--out', type=Path, required=True)
-    parser.add_argument('--levels', default='80x46,160x90,320x180,480x270,640x360')
+    parser.add_argument('--levels', default='96x54,240x135,480x270,720x405')
     parser.add_argument('--timing', choices=['resident', 'stream', 'both'], default='both')
     parser.add_argument('--repeats', type=int, default=100)
     parser.add_argument('--warmup', type=int, default=10)
@@ -237,10 +237,9 @@ def main():
                                 mean_standard_psnr_db=float(np.mean([q['standard_psnr_db'] for q in qs])),
                                 mean_delta_vs_full_db=float(np.mean([q['delta_vs_full_db'] for q in qs])),
                                 mean_legacy_whole_psnr_db=float(np.mean([q['legacy_whole_psnr_db'] for q in qs])),
-                                wall_p50_ms=float(np.percentile(wall, 50)), wall_p95_ms=float(np.percentile(wall, 95)),
-                                wall_p99_ms=float(np.percentile(wall, 99)),
-                                gpu_p50_ms=float(np.percentile([t['gpu_timeline_ms'] for t in ts], 50)),
-                                speedup_vs_full_p50=float(np.median([t['wall_ms'] for t in bs]) / np.median(wall))))
+                                wall_mean_ms=float(np.mean(wall)),
+                                gpu_mean_ms=float(np.mean([t['gpu_timeline_ms'] for t in ts])),
+                                speedup_vs_full_mean=float(np.mean([t['wall_ms'] for t in bs]) / np.mean(wall))))
         write_csv(args.out / 'summary.csv', summary)
         (args.out / 'COMPLETE').write_text('All requested frames, levels and timings completed.\n')
     finally:

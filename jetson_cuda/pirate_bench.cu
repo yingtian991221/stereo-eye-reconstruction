@@ -315,10 +315,15 @@ void ppm(const std::string &path, const std::vector<Byte> &bgr, int w, int h) {
     if (!out)
         throw std::runtime_error("cannot write " + path);
     out << "P6\n" << w << " " << h << "\n255\n";
+    // Image dumping is outside every reconstruction timer. Batch the same RGB
+    // bytes into one write rather than an ofstream call for every pixel.
+    std::vector<Byte> rgb(bgr.size());
     for (size_t i = 0; i < bgr.size(); i += 3) {
-        char rgb[3] = {char(bgr[i + 2]), char(bgr[i + 1]), char(bgr[i])};
-        out.write(rgb, 3);
+        rgb[i] = bgr[i + 2];
+        rgb[i + 1] = bgr[i + 1];
+        rgb[i + 2] = bgr[i];
     }
+    out.write(reinterpret_cast<const char *>(rgb.data()), rgb.size());
     if (!out)
         throw std::runtime_error("image write failed");
 }

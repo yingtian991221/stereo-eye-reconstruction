@@ -15,6 +15,10 @@ results/hevc_decode_*/ffmpeg*/
 results/hevc_decode_*/*.log
 results/map_decode_*/raw/
 results/map_decode_*/*.log
+results/fov_scales_*/raw/
+results/fov_scales_*/timings.csv
+results/fov_scales_*/quality.csv
+results/fov_scales_*/source/
 results/fov_levels_*/raw/
 results/fov_levels_*/timings.csv
 results/fov_levels_*/quality.csv
