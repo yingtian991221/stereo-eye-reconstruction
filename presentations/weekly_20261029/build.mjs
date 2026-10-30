@@ -109,27 +109,17 @@ const src='Source: results/fov_only_clear_partial_20261030/presentation_results.
 // 7: quality native table
 {
  const s=slide('Quality and timing across region sizes',src+' Original uint8-overflow PSNR preserved. Stereo delta is derived only if left eye remains unchanged and per-eye PSNR dB is averaged. Timing uses 500 common frames; quality uses 672 common frames. These are partial saved results, not a complete dataset run. Timing is never divided by two. Latency adds a fixed 2 ms per-frame decode budget once, not measured decoding or end-to-end latency. Source: results/fov_only_clear_partial_20261030/presentation_results.json.');
- table(s,[['Region width scale','Decode + recon mean','Stereo PSNR loss (dB)'],...levels.map(l=>{const r=get(l);return [region(l),`${fixed(budgetMean(l))} ms`,delta(r.derived_stereo_loss_db)]})],64,170,1152,337,[340,390,422],27);
+ table(s,[['Region width scale','Decode + recon mean','Stereo PSNR loss (dB)'],...levels.map(l=>{const r=get(l);return [region(l),`${fixed(budgetMean(l))} ms`,delta(r.derived_stereo_loss_db)]}),['Full',`${fixed(measured.full_reference.total_gpu_mean_ms)} ms`,'0.0000']],64,170,1152,337,[340,390,422],25);
  text(s,'Loss versus Full. Derived assuming unchanged left eye and mean per-eye PSNR in dB.',64,537,1150,40,25,C.blue,true);
  text(s,'PSNR uses the original evaluation protocol.',64,581,1150,36,23,C.muted);
  note(s,'Timing: 500 frames. Quality: 672 frames. Fixed decode budget: 2 ms.');
 
 }
-// 8: next verification
-{
- const s=slide('Next: measure deadline behavior under jitter','Proposed future work; no measured jitter trace or deadline-miss reduction exists in the current experiment. Slides 5–6 add a fixed 2 ms decode budget to local reconstruction means. Other timing values are local reconstruction measurements. None are measured end-to-end VR results.');
- const ys=[179,315,451];
- const titles=['Record the actual per-frame budget','Implement budget-based ROI selection','Compare fixed and adaptive policies on the same trace'];
- const bodies=['Log arrival, decode completion, and display deadline. Reserve display time and a margin.','Build a percentile-based profile. Define a fallback when no level fits the budget.','Report deadline-miss rate, tail latency, and quality. Repeat runs to check stability.'];
- titles.forEach((t,i)=>{text(s,`${i+1}`,66,ys[i],60,60,40,C.blue,true);text(s,t,140,ys[i],1050,48,32,C.ink,true);text(s,bodies[i],140,ys[i]+57,1045,48,27,C.muted);});
- note(s,'Measured: fixed-center quality–latency levels. Adaptive scheduling and benefits under jitter still require validation.');
-}
-
 for(let i=0;i<p.slides.items.length;i++){
  const blob=await p.export({slide:p.slides.items[i],format:'png',scale:1});
  await fs.writeFile(path.join(BUILD,`slide-${i+1}.png`),new Uint8Array(await blob.arrayBuffer()));
 }
 const candidate=path.join(BUILD,'candidate.pptx');await(await PresentationFile.exportPptx(p)).save(candidate);
 const FINAL=path.join(OUT,process.env.PPTX_NAME || 'weekly_20261029_english_final.pptx');
-const result=await finalizePresentation({workspaceDir:ROOT,candidatePath:candidate,finalPath:FINAL,pythonExecutable:RUNTIME+'/python/python.exe',integrityValidatorPath:SKILL+'/container_tools/inspect_presentation_package_integrity.py',layoutValidatorPath:SKILL+'/container_tools/inspect_presentation_layout_geometry.py',layoutArgs:['--expected-slide-size-emu','12192000,6858000','--validate-bullet-geometry','--validate-heading-fit','--require-native-table-slide','6'],explicitTotalSlideCount:7,requiredNativeTableOwnerSlides:[6],requiredNativeChartOwnerSlides:[5],materializeLiteralChartWorkbooks:true,fontPolicy:{basis:'design',families:[FONT]},verifyArtifactToolImport:true,receiptPath:path.join(BUILD,path.basename(FINAL)+'.validation.json')});
+const result=await finalizePresentation({workspaceDir:ROOT,candidatePath:candidate,finalPath:FINAL,pythonExecutable:RUNTIME+'/python/python.exe',integrityValidatorPath:SKILL+'/container_tools/inspect_presentation_package_integrity.py',layoutValidatorPath:SKILL+'/container_tools/inspect_presentation_layout_geometry.py',layoutArgs:['--expected-slide-size-emu','12192000,6858000','--validate-bullet-geometry','--validate-heading-fit','--require-native-table-slide','6'],explicitTotalSlideCount:6,requiredNativeTableOwnerSlides:[6],requiredNativeChartOwnerSlides:[5],materializeLiteralChartWorkbooks:true,fontPolicy:{basis:'design',families:[FONT]},verifyArtifactToolImport:true,receiptPath:path.join(BUILD,path.basename(FINAL)+'.validation.json')});
 console.log(JSON.stringify(result,null,2));
