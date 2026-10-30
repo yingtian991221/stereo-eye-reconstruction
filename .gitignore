@@ -13,6 +13,8 @@ results/hevc_decode_*/gst*/
 results/hevc_decode_*/throughput*/
 results/hevc_decode_*/ffmpeg*/
 results/hevc_decode_*/*.log
+results/map_decode_*/raw/
+results/map_decode_*/*.log
 results/fov_levels_*/raw/
 results/fov_levels_*/timings.csv
 results/fov_levels_*/quality.csv

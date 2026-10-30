@@ -1,5 +1,27 @@
 # Jetson HEVC decode latency
 
+The current reporting convention adds one fixed 2 ms decode budget per frame
+to each FOV reconstruction mean. This user-selected budget is a derived
+planning assumption, not a measured joint RGB/depth/flow decode pipeline.
+Run `python jetson_decode/update_fov_budget.py` from the repo to refresh the
+[timing tables](../results/fov_decode_budget_2ms_20261029/README.md).
+
+Map tests are documented in [the depth/flow experiment](../results/map_decode_xavier_20261029/README.md).
+`encode_maps.py` makes matched 120-frame RGB controls, quantized gray-content
+YUV420 HEVC streams, and lossless high/low-byte packed uint16 controls. Packed
+controls double image width. Every packed input value is checked through a
+local software decode; timed NVDEC output stays in NVMM and is not read back.
+`run_map_decode.py` runs the existing serial and throughput probes sequentially,
+records failures explicitly, and preserves per-frame samples. `report_maps.py`
+audits coverage and computes means. The low-bitrate quantized maps change values
+and are not substitutes for the current uint16 reconstruction inputs.
+
+```bash
+python encode_maps.py --ffmpeg /path/to/ffmpeg --data-root /path/to/driving_forward_speed --out /new/maps --count 120
+# Transfer the generated MP4 files and encoding.json into a new directory on Jetson.
+python3 run_map_decode.py --videos /path/to/maps --out /new/map_decode_results
+```
+
 Measured four-video results and exact encoding settings are in
 [the experiment report](../results/hevc_decode_xavier_20261029/README.md).
 `encode_driving.py` encodes original left-eye PNGs at 90 FPS, HEVC 8 Mbps,

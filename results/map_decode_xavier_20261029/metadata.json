@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-29",
+  "power_mode": 5,
+  "frames_per_clip": 120,
+  "frame_range": "1..120 consecutive per workload and channel",
+  "repeats": 3,
+  "clips": 28,
+  "decode_tests": 56,
+  "video_bytes": 545856239,
+  "all_test_exit_codes_zero": true,
+  "source_and_video_sha_verified": true,
+  "hardware_pixel_comparison": false,
+  "software_packed16_compared_values": 746496000,
+  "remote": "/home/yingtian/stereo-map-decode-20261029"
+}

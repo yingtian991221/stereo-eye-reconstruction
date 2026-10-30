@@ -1,0 +1,10 @@
+{
+  "videos": 28,
+  "tests": 56,
+  "failures": [],
+  "frames_per_run": 120,
+  "repeats": 3,
+  "statistic": "arithmetic mean",
+  "packed_software_exact": true,
+  "hardware_pixel_exactness_verified": false
+}

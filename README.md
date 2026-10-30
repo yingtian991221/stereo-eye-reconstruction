@@ -43,6 +43,10 @@ PIRATE_BIN=./build/pirate_bench bash jetson_cuda/run_matrix.sh \
 
 ## FOV level 的质量与时间联合测试
 
+**当前汇报口径：[固定2ms解码预算 + 各档FOV重建均值](results/fov_decode_budget_2ms_20261029/README.md)**。包含30W小样本与15W完整有效范围，分别列示；推导值不覆盖原始测量。
+
+[Depth / flow 灰度内容与16-bit打包解码测试](results/map_decode_xavier_20261029/README.md)：相同120帧片段下，低码率depth/u/v解码均值约2.36ms，RGB对照约2.42ms（各轮去首10帧）；同时报告有损数值误差和高码率无损打包控制，未接入重建流水线。
+
 [图片合成 HEVC MP4 后的实测解码结果](results/hevc_decode_xavier_20261029/README.md)：四组2200帧，FFmpeg编码、Jetson NVDEC解码，分别报告逐帧平均延迟与流水吞吐。硬解码预热后应用可见延迟约2.40–2.51ms；尚未包含NV12到BGR转换及与重建的互操作。
 
 [CUDA C++ 按论文阶段的 breakdown](results/cu_breakdown_xavier_20261029/README.md)：Xavier 30W、四组第39帧的小样本，全部使用均值。单列重投影、合成补洞、清零、FOV额外步骤和CPU/GPU拷贝；解码未测。
