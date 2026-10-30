@@ -17,8 +17,8 @@ const DECODE_BUDGET_MS=2;
 const measured=JSON.parse(await fs.readFile(path.join(ROOT,'results/fov_scales_full_20261029/scale_results.json'),'utf8'));
 const rows=measured.levels;
 if(measured.frames!==1068 || measured.power_w!==30 || measured.warmup_per_frame!==3 || measured.repeats_per_frame!==5 || measured.full_reference_level!=='240x135')throw new Error('Unexpected experiment scope');
-const levels=['96x54','240x135','480x270','720x405'];
-const expectedScales=[0.1,0.25,0.5,0.75];
+const levels=['96x54','240x135','480x270']; // Presentation subset; four measured levels remain in source JSON.
+const expectedScales=[0.1,0.25,0.5];
 if(!Array.isArray(rows)||rows.length!==4)throw new Error('Expected four completed scale groups');
 const get=l=>rows.find(r=>r.level===l);
 levels.forEach((l,i)=>{
@@ -84,7 +84,7 @@ const src='Source: results/fov_scales_full_20261029/scale_results.json and READM
 }
 // 4: reconstruction editable diagram
 {
- const s=slide('Half-resolution base with a full-resolution center',src+' Mechanism: half-resolution base + padded full-resolution ROI + feather overlay. The full output is 960x540 (1.0x). Region scale is ROI width divided by full-image width: 96x54 => 0.1x, 240x135 => 0.25x, 480x270 => 0.5x, 720x405 => 0.75x. Width and height both follow these scales. ROI extent scale is not sampling resolution: pixels within the ROI remain full-resolution. The base samples at 0.5x width and 0.5x height (480x270) while covering the entire image.');
+ const s=slide('Half-resolution base with a full-resolution center',src+' Mechanism: half-resolution base + padded full-resolution ROI + feather overlay. The full output is 960x540 (1.0x). Region scale is ROI width divided by full-image width: 96x54 => 0.1x, 240x135 => 0.25x, 480x270 => 0.5x. The measured 0.75x level remains in the source dataset but is omitted from this presentation. Width and height both follow these scales. ROI extent scale is not sampling resolution: pixels within the ROI remain full-resolution. The base samples at 0.5x width and 0.5x height (480x270) while covering the entire image.');
  text(s,'Shared image, disparity, and optical-flow inputs',64,151,1100,44,30);
  box(s,90,248,320,180,C.light,C.blue);text(s,'Base sampling\n0.5× width\n0.5× height',112,280,280,112,26,C.blue,true);
  text(s,'Base covers the whole image',90,447,370,36,25,C.muted);
@@ -92,7 +92,7 @@ const src='Source: results/fov_scales_full_20261029/scale_results.json and READM
  text(s,'+',432,307,45,60,42,C.blue,true);text(s,'Full resolution within the ROI',485,447,370,36,25,C.muted);
  arrow(s,826,322,60,22,C.teal);box(s,910,248,300,180,C.light,C.blue);box(s,1015,304,90,68,C.white,C.teal);text(s,'Upsample + blend',920,462,290,40,28,C.blue,true);
  text(s,'1.0× output',943,510,285,40,26,C.muted);
- text(s,'Full-resolution region width: 0.1×, 0.25×, 0.5×, 0.75×',64,552,1140,40,29,C.ink,true);
+ text(s,'Full-resolution region width: 0.1×, 0.25×, 0.5×',64,552,1140,40,29,C.ink,true);
  note(s,'Region scale = region width / image width. Sampling inside the region stays at full resolution.');
 }
 // 6: native stacked chart, new 30W CUDA C++ timing
@@ -109,10 +109,11 @@ const src='Source: results/fov_scales_full_20261029/scale_results.json and READM
 // 7: quality native table
 {
  const s=slide('Quality and timing across region sizes',src+' Original uint8-overflow PSNR preserved. Stereo delta is derived only if left eye remains unchanged and per-eye PSNR dB is averaged. Quality and timing use the same 30W 1068-frame experiment: 3 warmups and 5 timing samples per frame, one quality output per configuration/frame. Timing is never divided by two. Latency adds a fixed 2 ms per-frame decode budget once, not measured decoding or end-to-end latency. Source: results/fov_scales_full_20261029/scale_results.json.');
- table(s,[['Region width scale','Decode + recon mean','Right-eye ΔPSNR','Stereo mean ΔPSNR*'],...levels.map(l=>{const r=get(l);return [region(l),`${fixed(budgetMean(l))} ms`,`${delta(r.legacy_delta_db)} dB`,`${delta(r.derived_stereo_delta_db)} dB`]})],64,170,1152,337,[265,275,286,326],24);
- text(s,'* Unchanged left eye, mean per-eye PSNR in dB: stereo difference = right-eye difference / 2',64,537,1150,40,25,C.blue,true);
- text(s,'ΔPSNR = FOV − full, using original overflow PSNR. Standard PSNR can show a different trend.',64,581,1150,36,23,C.muted);
- note(s,'Quality and timing: same 30W run, 1068 frames. Timing adds a fixed 2 ms decode budget; not measured end-to-end.');
+ table(s,[['Region width scale','Decode + recon mean','Stereo PSNR loss (dB)'],...levels.map(l=>{const r=get(l);return [region(l),`${fixed(budgetMean(l))} ms`,delta(-Number(r.derived_stereo_delta_db))]})],64,170,1152,337,[340,390,422],27);
+ text(s,'Loss versus Full. Derived assuming unchanged left eye and mean per-eye PSNR in dB.',64,537,1150,40,25,C.blue,true);
+ text(s,'Original overflow PSNR preserved. Quality and timing: same 30W run, 1068 frames.',64,581,1150,36,23,C.muted);
+ note(s,'Timing adds a fixed 2 ms decode budget; not measured end-to-end.');
+
 }
 // 8: next verification
 {

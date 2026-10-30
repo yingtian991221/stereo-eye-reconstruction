@@ -6,7 +6,9 @@ The requested order is network jitter and remaining budget, reconstruction mecha
 
 ## Current timing and quality sources
 
-Both timing and quality now use the same complete 30W CUDA C++ run over 1068 supported forward odd frames, with four region-width scales: 0.1×, 0.25×, 0.5× and 0.75×. These correspond to 96×54, 240×135, 480×270 and 720×405 pixels within the 960×540 output. Base sampling remains 0.5× in each dimension; ROI pixels remain full-resolution. All scale labels on pages 4–6 use linear width scale, not area fraction.
+The presentation selects three measured scales: **0.1×, 0.25× and 0.5×**. Page 6 reports only positive derived **stereo PSNR loss** (0.0859, 0.0785 and 0.0599 dB). The measured 0.75× results remain intact in the source JSON and reports, but are omitted from the slide chart/table.
+
+Both timing and quality now use the same complete 30W CUDA C++ run over 1068 supported forward odd frames, with four region-width scales: 0.1×, 0.25×, 0.5× and 0.75×. These correspond to 96×54, 240×135, 480×270 and 720×405 pixels within the 960×540 output. Base sampling remains 0.5× in each dimension; ROI pixels remain full-resolution. All displayed scale labels on pages 4–6 use linear width scale, not area fraction.
 
 The builder reads `results/fov_scales_full_20261029/scale_results.json`. Each configuration has 3 warmups and 5 timing samples per frame, plus one quality output per frame (5340 timing samples and 1068 quality outputs). The chart uses resident whole-pipeline GPU event means without internal stage markers, not wall time. This timing protocol differs from the prior small-sample staged experiment. Clocks remain dynamic and fast resampling is enabled. Copies, allocation, disk I/O, network, decoding and display are excluded.
 
