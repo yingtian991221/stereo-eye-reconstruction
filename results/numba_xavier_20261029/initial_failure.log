@@ -1,0 +1,30 @@
+Traceback (most recent call last):
+  File "src/jetson_numba/run_smoke.py", line 56, in <module>
+    main()
+  File "src/jetson_numba/run_smoke.py", line 44, in main
+    row['source_function'] = source_wall_benchmark(folder, scope, io, [39], a.repeats)
+  File "/home/yingtian/stereo-numba-20261029/src/benchmark_reconstruction_speed.py", line 111, in source_wall_benchmark
+    scope["generate_right"](frame - 1, 0)
+  File "/home/yingtian/stereo-numba-20261029/data/15mm_focallength/scene_forwards/aaa/test_numba.py", line 314, in generate_right
+    init[griddim, blockdim](right_device, right1_device, right2_device, mask_device,mask1_device)
+  File "/home/yingtian/venvs/stereo-numba/lib/python3.8/site-packages/numba/cuda/dispatcher.py", line 539, in __call__
+    return self.dispatcher.call(args, self.griddim, self.blockdim,
+  File "/home/yingtian/venvs/stereo-numba/lib/python3.8/site-packages/numba/cuda/dispatcher.py", line 673, in call
+    kernel = _dispatcher.Dispatcher._cuda_call(self, *args)
+  File "/home/yingtian/venvs/stereo-numba/lib/python3.8/site-packages/numba/cuda/dispatcher.py", line 681, in _compile_for_args
+    return self.compile(tuple(argtypes))
+  File "/home/yingtian/venvs/stereo-numba/lib/python3.8/site-packages/numba/cuda/dispatcher.py", line 924, in compile
+    kernel = _Kernel(self.py_func, argtypes, **self.targetoptions)
+  File "/home/yingtian/venvs/stereo-numba/lib/python3.8/site-packages/numba/core/compiler_lock.py", line 35, in _acquire_compile_lock
+    return func(*args, **kwargs)
+  File "/home/yingtian/venvs/stereo-numba/lib/python3.8/site-packages/numba/cuda/dispatcher.py", line 103, in __init__
+    self.cooperative = 'cudaCGGetIntrinsicHandle' in lib.get_asm_str()
+  File "/home/yingtian/venvs/stereo-numba/lib/python3.8/site-packages/numba/cuda/codegen.py", line 119, in get_asm_str
+    return self._join_ptxes(self._get_ptxes(cc=cc))
+  File "/home/yingtian/venvs/stereo-numba/lib/python3.8/site-packages/numba/cuda/codegen.py", line 131, in _get_ptxes
+    arch = nvvm.get_arch_option(*cc)
+  File "/home/yingtian/venvs/stereo-numba/lib/python3.8/site-packages/numba/cuda/cudadrv/nvvm.py", line 413, in get_arch_option
+    arch = find_closest_arch((major, minor))
+  File "/home/yingtian/venvs/stereo-numba/lib/python3.8/site-packages/numba/cuda/cudadrv/nvvm.py", line 386, in find_closest_arch
+    raise NvvmSupportError(msg)
+numba.cuda.cudadrv.error.NvvmSupportError: No supported GPU compute capabilities found. Please check your cudatoolkit version matches your CUDA version.

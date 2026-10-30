@@ -1,0 +1,9 @@
+2026-10-29T19:28:53-07:00
+NV Power Mode: MODE_15W_DESKTOP
+7
+NVPM ERROR: Error opening /sys/kernel/nvpmodel_emc_cap/emc_iso_cap: 13
+NVPM ERROR: failed to read PARAM EMC: ARG MAX_FREQ: PATH /sys/kernel/nvpmodel_emc_cap/emc_iso_cap
+0-3
+2188800
+675750000
+nvhost_podgov

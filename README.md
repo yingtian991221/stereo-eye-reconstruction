@@ -43,6 +43,8 @@ PIRATE_BIN=./build/pirate_bench bash jetson_cuda/run_matrix.sh \
 
 ## FOV level 的质量与时间联合测试
 
+Numba 也已在 Xavier 真实 GPU 上跑通：见 [Numba 环境与重跑说明](jetson_numba/README.md) 和 [四组 frame 39 小样本结果](results/numba_xavier_20261029/README.md)。它使用旧上采样实现，不能直接把与优化 CUDA C++ 的差异解释为语言开销。
+
 [2026-10-27 Xavier 完整有效 Driving 1068 帧报告与原始证据](results/fov_levels_xavier_full_20261027/README.md)。此前的 [64 帧抽样报告](results/fov_levels_xavier_20261027/README.md) 保留供对照。
 
 第一轮 level 定义为中心全分辨率矩形大小：`80x46 / 160x90 / 320x180 / 480x270 / 640x360`。

@@ -1,0 +1,6 @@
+importlib-metadata==8.5.0
+llvmlite==0.41.1
+numba==0.58.1
+numpy==1.24.4
+pillow==10.4.0
+zipp==3.20.2
