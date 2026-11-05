@@ -243,6 +243,10 @@ struct Pipeline {
     bool precomputed;
     bool fastResample = false;
     bool fastClear = false;
+    bool fastClearFovOnly = false;
+    bool useFastClear(int mode) const {
+        return fastClear || (mode == 2 && fastClearFovOnly);
+    }
     Pipeline(int w, int h, int CW, int CH, int cx, int cy, bool pre)
         : full(w, h), half(w / 2, h / 2), fullWork(w, h), halfWork(w / 2, h / 2),
           roi(CW + 6, CH + 6), output(w * h * 3), cw(CW), ch(CH), x0(cx - CW / 2 - 3),
@@ -254,14 +258,15 @@ struct Pipeline {
         CK(cudaGetLastError());
     }
     Byte *run(int mode, Params p) {
+        const bool clearFast = useFastClear(mode);
         if (mode == 0) {
-            reconstruct(full, fullWork, p, 0, 0, fastClear);
+            reconstruct(full, fullWork, p, 0, 0, clearFast);
             return fullWork.out.p;
         }
         if (!precomputed)
             downsample();
         Params hp = {p.d * 0.5, p.umax * 0.5, p.vmax * 0.5, p.umin * 0.5, p.vmin * 0.5};
-        reconstruct(half, halfWork, hp, 0, 0, fastClear);
+        reconstruct(half, halfWork, hp, 0, 0, clearFast);
         if (fastResample)
             upsampleKernel<float, true><<<dim3((full.w+31)/32, (full.h+7)/8), dim3(32,8)>>>(
                 halfWork.out.p, output.p, half.w, half.h, full.w, full.h);
@@ -269,7 +274,7 @@ struct Pipeline {
             upsampleKernel<double><<<grid(full.w, full.h), block>>>(halfWork.out.p, output.p,
                                                                   half.w, half.h, full.w, full.h);
         if (mode == 2) {
-            reconstruct(full, roi, p, x0, y0, fastClear);
+            reconstruct(full, roi, p, x0, y0, clearFast);
             overlayKernel<<<grid(cw, ch), block>>>(roi.out.p, output.p, roi.w, full.w, x0, y0, cw,
                                                    ch, 8);
         }
@@ -356,7 +361,8 @@ double percentile(std::vector<double> v, double q) {
 struct Options {
     std::string manifest, input, csv = "timings.csv", dump;
     int repeats = 100, warmup = 10, rw = 160, rh = 90, cx = -1, cy = -1;
-    bool pre = false, stream = false, self = false, fast = false, fastClear = false;
+    bool pre = false, stream = false, self = false, fast = false, fastClear = false,
+         fastClearFovOnly = false;
 };
 Options parse(int argc, char **argv) {
     Options o;
@@ -365,7 +371,8 @@ Options parse(int argc, char **argv) {
         if (k == "--help") {
             std::cout << "pirate_bench --manifest PATH | --input FILE [--roi-width 160 "
                          "--roi-height 90 --center-x X --center-y Y --repeats 100 --warmup 10 "
-                         "--csv timings.csv --dump-prefix PATH --stream --precomputed-base --fast-resample --fast-clear]\n      "
+                         "--csv timings.csv --dump-prefix PATH --stream --precomputed-base --fast-resample "
+                         "[--fast-clear | --fast-clear-fov-only]]\n      "
                          " pirate_bench --self-test\n";
             std::exit(0);
         }
@@ -375,6 +382,10 @@ Options parse(int argc, char **argv) {
         }
         if (k == "--fast-clear") {
             o.fastClear = true;
+            continue;
+        }
+        if (k == "--fast-clear-fov-only") {
+            o.fastClearFovOnly = true;
             continue;
         }
         if (k == "--precomputed-base") {
@@ -415,6 +426,8 @@ Options parse(int argc, char **argv) {
         else
             throw std::runtime_error("unknown option " + k);
     }
+    if (o.fastClear && o.fastClearFovOnly)
+        throw std::runtime_error("--fast-clear and --fast-clear-fov-only are mutually exclusive");
     if (o.repeats < 1 || o.warmup < 1 || o.rw < 1 || o.rh < 1)
         throw std::runtime_error("positive counts/sizes required");
     if (o.pre && o.stream)
@@ -537,15 +550,19 @@ void selfTest() {
     Pipeline p(f.w, f.h, 16, 12, 32, 24, false);
     p.full.upload(f);
     std::vector<Byte> out(n * 3);
-    for (int fastClear = 0; fastClear < 2; ++fastClear)
+    for (int policy = 0; policy < 3; ++policy)
         for (int mode = 0; mode < 3; mode++) {
-            p.fastClear = fastClear;
+            p.fastClear = policy == 1;
+            p.fastClearFovOnly = policy == 2;
+            if (p.useFastClear(mode) != (policy == 1 || (policy == 2 && mode == 2)))
+                throw std::runtime_error("clear mode-selection policy self-test failed");
             Byte *d = p.run(mode, f.p);
             CK(cudaMemcpy(out.data(), d, out.size(), cudaMemcpyDeviceToHost));
             if (out != f.left)
                 throw std::runtime_error("constant-image self-test failed");
         }
     p.fastClear = false;
+    p.fastClearFovOnly = false;
     // Nonconstant zero-disparity warp must reproduce every source pixel.
     for (size_t i = 0; i < f.left.size(); i++)
         f.left[i] = Byte(1 + (i * 17) % 254);
@@ -603,7 +620,7 @@ void selfTest() {
         throw std::runtime_error("zero-MSE PSNR test failed");
     std::cout << "SELF_TEST_OK: constant full/base/FOV, identity warp, translated "
                  "disparity/flow/fill CPU reference, ROI coverage/feather, FP32 resample exact, "
-                 "old/fast clear byte equality and guards, legacy PSNR wrap/zero\n";
+                 "old/fast clear byte equality and guards, FOV-only clear mode selection, legacy PSNR wrap/zero\n";
 }
 int main(int argc, char **argv) {
     try {
@@ -639,7 +656,7 @@ int main(int argc, char **argv) {
         if (!csv)
             throw std::runtime_error("cannot write CSV");
         csv << "frame,mode,iteration,wall_ms,gpu_timeline_ms,legacy_right_psnr_db,roi_width,roi_"
-               "height,timing,downsample_included,fast_resample,fast_clear\n"
+               "height,timing,downsample_included,fast_resample,fast_clear,fast_clear_fov_only\n"
             << std::setprecision(10);
         const char *names[] = {"full", "half_base", "fov"};
         for (size_t fi = 0; fi < paths.size(); fi++) {
@@ -652,6 +669,7 @@ int main(int argc, char **argv) {
             Pipeline p(f.w, f.h, o.rw, o.rh, cx, cy, o.pre);
             p.fastResample = o.fast;
             p.fastClear = o.fastClear;
+            p.fastClearFovOnly = o.fastClearFovOnly;
             p.full.upload(f);
             if (o.pre)
                 p.downsample();
@@ -697,7 +715,8 @@ int main(int argc, char **argv) {
                     csv << name << ',' << names[m] << ',' << r << ',' << walls[m][r] << ','
                         << gpus[m][r] << ',' << scores[m] << ',' << o.rw << ',' << o.rh << ','
                         << (o.stream ? "host_transfer" : "gpu_resident") << ','
-                        << (!o.pre && m != 0) << ',' << o.fast << ',' << o.fastClear << '\n';
+                        << (!o.pre && m != 0) << ',' << o.fast << ',' << p.useFastClear(m) << ','
+                        << o.fastClearFovOnly << '\n';
                 std::cout << name << " " << names[m]
                           << " wall mean=";
                 double meanWall = 0;

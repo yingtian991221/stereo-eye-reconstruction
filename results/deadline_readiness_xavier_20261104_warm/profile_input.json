@@ -1,0 +1,13 @@
+{
+  "format": "PIRSEQ2",
+  "source": "\\\\YZ\\2023fall1\\driving__frames_cleanpass\\frames_cleanpass\\15mm_focallength\\scene_forwards\\aaa",
+  "start": 7,
+  "count": 16,
+  "width": 960,
+  "height": 540,
+  "sha256": "d6f8bd0eb5d364cd5e48b5d895122869bdaaa537b3516d70b19176083e02ea47",
+  "codec_inputs": "existing 8_left/8_right PNG decoded arrays, unchanged across strategies",
+  "maps": "gray_depth/gray_depth_right, gray_u/v[_left]_past; uint16",
+  "history": "bootstrap from decoded 8_left/8_right, never ground truth",
+  "left_geometry": "horizontal reflection with u sign inversion; no disparity re-estimation"
+}

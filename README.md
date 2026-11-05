@@ -1,8 +1,10 @@
 # PIRATE → Jetson Xavier：CUDA C++ 重建与 FOV 测速
 
+**2026-11-04 deadline 实验：** [结果与结论](results/deadline_readiness_xavier_20261104_warm/REPORT.md) · [可复现程序与时间模型](deadline_experiments/README.md)。已在 Xavier 完成 264 组 synthetic input-readiness 实测，覆盖固定预算、动态晚到和连续双眼交替。新实验使用浮点标准 PSNR；下方历史溢出 PSNR、固定 2ms 解码预算和不同批次 Full 时间不用于新结论。
+
 本项目将目前的 Numba 重建/FOV 速度原型移植为 **CUDA C++ `.cu` 程序**，用于在 Jetson AGX Xavier / Xavier NX 上比较全尺寸重建、半分辨率底图和底图加全分辨率注视区的速度。**编译后的测速程序不需要 Python、Numba、PyTorch 或 OpenCV。** Xavier 已有数据集时，在设备上用 NumPy/Pillow 做一次数据导出即可，不需要重新传数据集。
 
-已在 RTX 和 Jetson AGX Xavier 15W 上执行多档 FOV 对照，并增加可选的上采样加速路径。质量与时间、原始记录和限制见下方实测报告。当前程序使用固定 ROI；动态眼动、网络到达和 deadline 调度尚未接入。
+已在 RTX 和 Jetson AGX Xavier 15W 上执行多档 FOV 对照，并增加可选的上采样加速路径。质量与时间、原始记录和限制见下方实测报告。原 benchmark 使用固定 ROI；新增 deadline 框架提供可控输入就绪与动态选择，实际无线网络、解码和物理显示尚未接入。
 
 ## Xavier 已有数据：从 GitHub 开始
 
@@ -320,7 +322,7 @@ PIRATE_BIN=./build/pirate_bench bash jetson_cuda/run_matrix.sh \
 | `downsample_included` | 当前模式是否把 GPU 降采样放在计时内 |
 | `roi_width/roi_height` | 本次运行的 ROI 配置；full/half_base 不使用 ROI |
 
-先在相同设备、供电/功耗模式、输入帧、ROI 和计时范围下比较 `fov/full`。优先关注 p50、p95、p99 与逐帧变化，不把 FPS 的倒数或单个平均数当作 deadline 保证。全流程显示失约率需要后续接入网络/解码/显示时间线。
+先在相同设备、供电/功耗模式、输入帧、ROI 和计时范围下比较 `fov/full`。报告平均时间、逐帧变化和实际 deadline miss，不把 FPS 的倒数或单个平均数当作 deadline 保证。新增框架已测量合成输入就绪下的重建完成失约；全流程显示失约率仍需接入网络/解码/显示时间线。
 
 Xavier 复现实验前记录 `nvpmodel -q`、`jetson_clocks --show` 和散热/供电情况。`sudo jetson_clocks` 可以锁定时钟以减少变量，但会改变设备的功耗/热状态；若采用，所有方案保持同一设置并记录。AGX Xavier 与 Xavier NX 的功耗模式编号可能不同，不在脚本中硬编码 `nvpmodel -m 0`。可另开终端用 `tegrastats --interval 1000` 记录温度、频率和负载。
 

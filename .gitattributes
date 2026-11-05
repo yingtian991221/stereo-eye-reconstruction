@@ -4,3 +4,8 @@
 *.py text eol=lf
 *.md text eol=lf
 CMakeLists.txt text eol=lf
+
+# Preserve measured records byte-for-byte so published SHA-256 checks remain
+# valid across Windows and Linux clones. Shell entry points use Unix endings.
+results/deadline_readiness_*/** -text
+deadline_experiments/*.sh text eol=lf

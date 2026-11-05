@@ -1,0 +1,13 @@
+{
+  "rows": 25344,
+  "runs": 264,
+  "profile_eval_disjoint": true,
+  "fixed_deadlines_verified": true,
+  "history_previous_decoded_frame_verified": true,
+  "display_id_fallback_verified": true,
+  "max_release_slip_ms": 1.585999332999961,
+  "metric": "float-domain MSE; mean per-frame standard stereo PSNR reported",
+  "synthetic": "release schedule and display sequence",
+  "measured": "host release/start/finish and actual reconstruction output",
+  "assumed": "90Hz playback, 20ms model offset, 1ms submission reserve; no decode measurement"
+}

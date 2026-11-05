@@ -1,0 +1,26 @@
+{
+  "driving_15_300": {
+    "packet_sha256": "3ebda4bc9811f94a514419afd98fc694fd53365d1561edabc249d9455dd80c9d",
+    "all_inputs_equal": true,
+    "source_sha256": "b2601a57b82b50527f9889d3d5c253e602e5a846788488fd81ace0e44ec0688e",
+    "standard_psnr_db": 18.783947224302416
+  },
+  "driving_15_800": {
+    "packet_sha256": "b6a5a50cdf38f7cfa72e6428feb6bbcae9be632d12eb7536f5f41bb4c1dcb2cc",
+    "all_inputs_equal": true,
+    "source_sha256": "2bca2b6962bf2126b02bd061d8666c445aa791b5f0b71a6636adea59e2b3a374",
+    "standard_psnr_db": 19.173671800918623
+  },
+  "driving_35_300": {
+    "packet_sha256": "39e03286a43264fce500672a39fae359e19eb8804a85c253da2eaa142de1c722",
+    "all_inputs_equal": true,
+    "source_sha256": "7def1dadd18dbb2e309e1c8a2a73ff52039a8404f0b9d63c0ff86e4bbb2c7b71",
+    "standard_psnr_db": 16.60633977150657
+  },
+  "driving_35_800": {
+    "packet_sha256": "0c6532265e703b30da63b378d12228faba08d6a442f2d2ce9556de5e33d7b77b",
+    "all_inputs_equal": true,
+    "source_sha256": "b5c9f7ddc841e52a862a263c54cc71e9971085f95d6f25b8bfe7bec9ec8a4025",
+    "standard_psnr_db": 19.0974010184629
+  }
+}

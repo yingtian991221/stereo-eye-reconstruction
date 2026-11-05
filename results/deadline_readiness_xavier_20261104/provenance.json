@@ -1,0 +1,20 @@
+{
+  "code_head": "31cba0e82e7f50d0533f799e30eefd0dfd2c2f4a",
+  "paper_head": "a82f36b9f8e603d553fe70435d3695f9773087c0",
+  "sources": {
+    "deadline_experiments/analyze.py": "b2a034e74a311cba3484ca1d1f96bcdaa413ca85caa2a2b7e7214f0b296457f9",
+    "deadline_experiments/export_clip.py": "23f06665d4b07ab3d2a2ae6492dfbbcfc7e621b283815a18fb3371d702797e77",
+    "deadline_experiments/paired_full.cu": "ce0d5845837506ce3fb15386a4635ee565062419ae10ebf65464f1033f88225f",
+    "deadline_experiments/paired_numba.py": "c294f0d9e15b008959ba395425b8fb6f70f0c0e1e8f16e4cba9dc450fd837d01",
+    "deadline_experiments/prepare.py": "99aabb84d54b28f9b8d1539fa58eaa4152d37bea48b04f2dd81f0d694d0f3c66",
+    "deadline_experiments/readiness.cu": "59b4e003150d05b9206044ca82aa984867e76684347921f5a9d181fcc7618ec4",
+    "deadline_experiments/README.md": "ec6701c5689b1743a46266a86921ba67e5b0fa5291fe97ff9f9807fbd70a3a66",
+    "deadline_experiments/run_xavier.sh": "0786d7385e93ba5a0e05bfba463bcc11110824ea8e1eeca24d1a6084d947011e",
+    "deadline_experiments/test_protocol.py": "939f532f62510840d5400f89202bf4fb55380ca6818581d81226ab0206e272e9",
+    "deadline_experiments/visualize_outputs.py": "01748f262c92ab00af108a46eb4855087dc58dcb0feaf5e8ced61731f3d3522e",
+    "jetson_cuda/pirate_bench.cu": "d18fefc990c1313f5b9a3e1261aefa0bf2ed2d9c2f743bfa0d8501981a8c7dd7"
+  },
+  "compile": "nvcc -O3 -std=c++14 --fmad=false -arch=sm_72 -Xcompiler -pthread readiness.cu -lz",
+  "remote_directory": "/home/yingtian/deadline-20261104",
+  "history_preserved": true
+}

@@ -42,3 +42,12 @@ results/fov_levels_*/**/source/
 *.exp
 *.ptx
 *.cubin
+
+# Publish deadline experiment records and figures; keep bulky lossless frame
+# streams and redundant download bundles outside normal Git history.
+results/deadline_readiness_*/replay/*.bgr.gz
+!results/deadline_readiness_*/figures/*.png
+!results/deadline_readiness_*/visuals/*.png
+!results/deadline_readiness_*/visuals/*.mp4
+!results/deadline_readiness_*/paired_numba/*.png
+!results/deadline_readiness_*/paired_cpp/*.ppm

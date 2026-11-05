@@ -1,0 +1,21 @@
+Working directory on Xavier: /home/yingtian/deadline-20261104
+Source files uploaded to warm_src/ and isolated outputs created in warm_results/.
+The same pipeline source SHA-256 is recorded in execution.json.
+
+/home/yingtian/stereo-fov-20261027/toolchain/root/usr/local/cuda-11.4/bin/nvcc -O3 -std=c++14 --fmad=false -arch=sm_72 -Xcompiler -pthread warm_src/deadline_experiments/readiness.cu -lz -o warm_results/readiness
+warm_results/readiness --self-test
+warm_results/readiness profile profile.gz warm_results/profile.csv
+python3 warm_src/deadline_experiments/prepare.py warm_results/profile.csv warm_results/frozen
+cp warm_results/frozen/* warm_results/
+
+# Preflight only, excluded from formal aggregates:
+warm_results/readiness replay evaluation.gz warm_results/smoke warm_results/release_plan_generous.csv warm_results/estimates.csv 1
+
+# Formal experiment, 3 rounds per policy/condition:
+warm_results/readiness replay evaluation.gz warm_results/replay warm_results/release_plan.csv warm_results/estimates.csv 3
+warm_results/readiness replay evaluation.gz warm_results/replay warm_results/release_plan_generous.csv warm_results/estimates.csv 3
+
+# Host analysis, only after logs are complete:
+python deadline_experiments/analyze.py results/deadline_readiness_xavier_20261104_warm
+python deadline_experiments/audit_images.py results/deadline_readiness_xavier_20261104_warm --clip tmp/deadline_20261104/evaluation.gz
+python deadline_experiments/visualize_outputs.py results/deadline_readiness_xavier_20261104_warm --clip tmp/deadline_20261104/evaluation.gz --ffmpeg tmp/ffmpeg_runtime/imageio_ffmpeg/binaries/ffmpeg-win-x86_64-v7.1.exe

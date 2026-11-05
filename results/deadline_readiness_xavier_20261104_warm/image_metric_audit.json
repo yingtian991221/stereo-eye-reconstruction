@@ -1,0 +1,9 @@
+{
+  "saved_stereo_pairs_checked": 120,
+  "held_pairs_checked": 24,
+  "received_eye_images_checked": 88,
+  "maximum_logged_mse_error": 4.773482942255214e-09,
+  "maximum_logged_psnr_error_db": 4.8963499921228504e-11,
+  "standard_float_metrics_verified": true,
+  "actual_pixel_hold_verified": true
+}
